@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winnipeg Geo Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-color: rgba(255, 255, 255);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            /* Set container background color */
+            padding: 20px;
+            /* Add padding for better visibility */
+            border-radius: 10px;
+            /* Add border-radius for rounded corners */
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 4em;
+            /* 4x larger */
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #results-container {
+            overflow-y: scroll;
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        #map-iframe {
+            width: 100%;
+            /* Ensure the iframe takes the full width */
+            height: 600px;
+            border: none;
+            /* Remove border */
+            margin: 0;
+            /* Remove margin */
+        }
+
+        #submit-btn {
+            margin-bottom: 10px;
+        }
+
+        /* Style for checkbox columns */
+        .checkbox-columns {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .checkbox-column {
+            flex: 0 0 30%; /* 30% width for each column */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Winnipeg Geo Data</h1>
+
+        <form id="query-form" action="/submit" method="post">
+            <section>
+                <h3>Filter by Query Involving:</h2>
+                    <div class="checkbox-columns">
+                        <div class="checkbox-column">
+                            <input type="checkbox" id="filter-time" name="filter-time"> Time<br>
+                            <input type="checkbox" id="filter-day" name="filter-day"> Day<br>
+                            <input type="checkbox" id="filter-gps" name="filter-gps"> GPS Point<br>
+                            <input type="checkbox" id="filter-street" name="filter-street"> Street<br>
+                        </div>
+                        <div class="checkbox-column">
+                            <input type="checkbox" id="filter-neighbourhood" name="filter-neighbourhood"> Neighbourhood<br>
+                            <input type="checkbox" id="filter-paystation" name="filter-paystation"> Paystation<br>
+                            <input type="checkbox" id="filter-lane" name="filter-lane"> Lane Closure<br>
+                            <input type="checkbox" id="filter-bus-stop" name="filter-bus-stop"> Bus Stop<br>
+                        </div>
+                        <div class="checkbox-column">
+                            <input type="checkbox" id="filter-bus-route" name="filter-bus-route"> Bus Route<br>
+                            <input type="checkbox" id="filter-tow" name="filter-tow"> Tow<br>
+                            <input type="checkbox" id="filter-substance-abuse" name="filter-substance-abuse"> Substance Abuse<br>
+                            <input type="checkbox" id="filter-wfps-call" name="filter-wfps-call"> WFPS Call<br>
+                        </div>
+                    </div>
+            </section>
+
+            <section>
+                <h3>Query:
+                    <select id="query-dropdown" name="query">
+                        <option value="" disabled selected>Select a Query</option>
+                        <option value="Query1">Query1</option>
+                        <option value="Query2">Query2</option>
+                        <option value="Query3">Query3</option>
+                    </select>
+                </h3>
+                <h3>Query Description:</h3>
+            </section>
+
+            <section>
+                <h3>Specify Query Parameters:</h2>
+                    <p>Number of Results: <input type="text" id="num-results" name="num-results"></p>
+                    <p>Order by:
+                        <select id="order-by" name="order-by">
+                            <option value="Unordered" selected>Unordered</option>
+                            <option value="Ascending">Ascending</option>
+                            <option value="Descending">Descending</option>
+                        </select>
+                    </p>
+            </section>
+
+            <button type="submit" id="submit-btn">Execute</button>
+        </form>
+
+        <section>
+            <h2>Query Results</h2>
+            <div id="results-container">
+                <p>No Results</p>
+                <!-- Actual results will be displayed here dynamically -->
+            </div>
+        </section>
+
+        <section>
+            <iframe src="interactive_map.html" width="800" height="700" id="map-iframe"></iframe>
+        </section>
+    </div>
+</body>
+
+</html>
