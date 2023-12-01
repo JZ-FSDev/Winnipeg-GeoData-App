@@ -1,5 +1,6 @@
 import pandas as pd
-from datetime import datetime
+import numpy as np
+from datetime import datetime, timedelta
 
 #Data Clean up
 
@@ -31,6 +32,24 @@ for index, row in new_data.iterrows():
 # Convert to datetime
 data['Date_From'] = pd.to_datetime(data['Date_From'], format='%B %d %Y').dt.date
 data['Date_To'] = pd.to_datetime(data['Date_To'], format='%B %d %Y').dt.date
+
+#Remove the direction
+for index, row in data.iterrows():
+    tokens = row['Street_Name'].split()
+    temp = row['Street_Type']
+
+    if(len(temp) == 1):
+        data.at[index, 'Street_Name'] = tokens[0]
+        data.at[index, 'Street_Type'] = tokens[1]
+
+#Chnage street types to maintain consistency
+dictionary = {'Av':'AVE', 'St':'ST', 'Rd':'RD', 'Ln':'LANE', 'Dr':'DR', 'Cr':'CRES', 'Bv':'BLVD', 
+              'Hw':'HWY', 'Bridge':'Bridge', 'Rw':'ROW', 'Cv':'COVE',
+              'Ct':'CRT', 'By':'BAY', 'Pl':'PL', 'Pk':'PK', 'Wy':'WAY', 'Gate':'GATE', 'Fwy':'FWY'}
+
+for index, row in data.iterrows():
+    type = row['Street_Type']
+    data.at[index, 'Street_Type'] = dictionary[type]
 
 # Write DataFrame to a CSV file
 new_data.to_csv('LaneClosure.csv', index=False)
@@ -212,6 +231,24 @@ for index, row in data.iterrows():
 #Drop processed columns from data frame
 data = data[['Date', 'Time', 'Status', 'Street_Name', 'Street_Type', 'Latitude', 'Longitude']]
 
+#Remove the direction
+for index, row in data.iterrows():
+    tokens = row['Street_Name'].split()
+    temp = row['Street_Type']
+
+    if(len(temp) == 1):
+        data.at[index, 'Street_Name'] = tokens[0]
+        data.at[index, 'Street_Type'] = tokens[1]
+
+#Change street types to maintain consistency
+dictionary = {'AVE': 'AVE', 'ST':'ST', 'HWY':'HWY', 'Ave.':'AVE', 'RD':'RD', 'CRES':'CRES', 
+ 'DR': 'DR', 'BLVD':'BLVD', 'St.':'ST', 'BAY':'BAY', 'PL':'PL', 'WAY':'WAY',
+ 'COVE':'COVE'}
+
+for index, row in data.iterrows():
+    type = row['Street_Type']
+    data.at[index, 'Street_Type'] = dictionary[type]
+
 # #store it to csv
 data.to_csv('Tow.csv', index=False)
 #-------------------------------------------------------------------------
@@ -228,7 +265,7 @@ houses = data.value_counts()
 data = houses.reset_index()
 
 #Renaming columns
-data.columns = ['Street Name', 'Street Type', 'Number_Of_Houses']
+data.columns = ['Street_Name', 'Street_Type', 'Number_Of_Houses']
 
 #store it to csv
 data.to_csv('Street.csv', index=False)
@@ -352,4 +389,19 @@ for index, row in data.iterrows():
 
 #store it to csv
 data.to_csv('Bus_Stop.csv', index=False)
+
+#Select a sample of 1M rows
+data = data.sample(1000000)
+
+# Define the date range
+start_date = datetime(2018, 7, 9)
+end_date = datetime(2023, 11, 23)
+
+# Generate random dates within the range
+random_dates = [start_date + timedelta(days=np.random.randint(0, (end_date - start_date).days)) for _ in range(1000000)]
+
+# Assign these dates to a column in your DataFrame
+data['Date'] = random_dates
+
+data.to_csv('BusData.csv', index=False)
 #-------------------------------------------------------------------------
