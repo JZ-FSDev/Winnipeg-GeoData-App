@@ -92,7 +92,7 @@ CREATE TABLE Parking_Citation (
     Citation_ID INT NOT NULL,
     Issue_Date TEXT,
     Time TEXT,
-    Violation_Type VARCHAR(100),
+    Violation_Type VARCHAR(255),
     Longitude DECIMAL(11,8),
     Latitude DECIMAL(11,8),
     PRIMARY KEY (Citation_ID),
@@ -128,7 +128,7 @@ CREATE TABLE Tow (
 );
 
 CREATE TABLE Bus_Route (
-    Route_Number TEXT NOT NULL,
+    Route_Number VARCHAR(50) NOT NULL,
     Route_Destination VARCHAR(100) NOT NULL,
     Route_Name VARCHAR(100),
     PRIMARY KEY (Route_Number, Route_Destination)
@@ -140,7 +140,7 @@ CREATE TABLE Bus_Stop (
     Scheduled_Time TEXT,
     Date TEXT,
     Deviation INT,
-    Route_Number TEXT,
+    Route_Number VARCHAR(50),
     Route_Destination VARCHAR(100),
     Longitude DECIMAL(11,8),
     Latitude DECIMAL(11,8),
