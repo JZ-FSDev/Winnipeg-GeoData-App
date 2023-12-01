@@ -7,6 +7,7 @@ import pyodbc
 
 
 config_file = "auth.cfg"  # Config file containing the MSSQL server username and password
+script_file = 'script.sql'  # Script to generate our tables and insert our data
 
 # Logs into the sql server and returns a new connection and cursor
 def login_to_sql_server():
@@ -49,10 +50,10 @@ def login_to_sql_server():
         print(f"Error connecting to the database: {e}")
         exit(1)
 
-
+# Populates the database by executing the sql script on the MSSQL server
 def populate_database(cursor):
+
     # Read and execute the SQL script to populate the database
-    script_file = 'script.sql'
     try:
         with open(script_file) as script:
             script_content = script.read()
@@ -118,7 +119,7 @@ def update_map():
 def main():
     conncection, cursor = login_to_sql_server()
     populate_database(cursor)
-    
+
 
 
 if __name__ == "__main__":
