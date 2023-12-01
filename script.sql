@@ -1,3 +1,8 @@
+--Data acquired from : 
+--https://data.winnipeg.ca/
+
+use cs3380;
+
 DROP TABLE IF EXISTS Parking_Citation;
 DROP TABLE IF EXISTS Parking_Violation;
 DROP TABLE IF EXISTS Paystation;
