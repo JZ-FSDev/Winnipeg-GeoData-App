@@ -158,6 +158,16 @@ data = data[['WFPS_Call_ID', 'Date', 'Reason', 'Call_Time', 'Neighbourhood_Name'
 
 #store it to csv
 data.to_csv('WFPS_Call.csv', index=False)
+
+#All neighbourhoods
+nhood = pd.read_csv('Neighbourhood.csv')
+
+# Read the CSV file into a DataFrame
+df = pd.read_csv("WFPS_Call.csv")
+data = nhood["Neighbourhood_Name"].unique()  
+
+df = df[df['Neighbourhood_Name'].isin(data)]
+df.to_csv('WFPS_Call.csv', index=False)
 #-------------------------------------------------------------------------
 
 #--------------------------GPS Point-----------------------
@@ -177,6 +187,14 @@ data.loc[:,'Longitude'] = split[1].astype(float)
 
 #Drop the Location column from data frame
 data = data[['Latitude', 'Longitude', 'Street Name', 'Street Type', 'Neighbourhood']]
+data = data[["Latitude", "Longitude", "Neighbourhood", "Street Name", "Street Type"]]
+data.columns = ["Latitude", "Longitude", "Neighbourhood_Name", "Street_Name", "Street_Type"]
+
+data = data.dropna(subset=['Street_Type'])
+data = data.dropna(subset=['Street_Name'])
+data = data.dropna(subset=['Neighbourhood_Name'])
+data = data.dropna(subset=['Latitude'])
+data = data.dropna(subset=['Longitude'])
 
 # #store it to csv
 data.to_csv('GPS_Point.csv', index=False)
@@ -282,6 +300,9 @@ data = data.drop_duplicates()
 #Renaming columns
 data.columns = ['Neighbourhood_Name', 'Street Name', 'Street Type']
 
+data = data.dropna(subset=['Street_Type'])
+data = data.dropna(subset=['Neighbourhood_Name'])
+
 #store it to csv
 data.to_csv('Neighbourhood_Street.csv', index=False)
 #-------------------------------------------------------------------------
@@ -315,6 +336,16 @@ data.rename(columns = {'Incident Number':'Substance_Use_ID', 'Neighbourhood':'Ne
 
 #store it to csv
 data.to_csv('Substances.csv', index=False)
+
+#All neighbourhoods
+nhood = pd.read_csv('Neighbourhood.csv')
+
+# Read the CSV file into a DataFrame
+df = pd.read_csv("Substances.csv")
+data = nhood["Neighbourhood_Name"].unique()  
+
+df = df[df['Neighbourhood_Name'].isin(data)]
+df.to_csv('Substances.csv', index=False)
 #--------------------------------------------------------------------------
 
 #--------------------------------Bus_Route---------------------------------
