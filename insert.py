@@ -317,6 +317,66 @@ with open('GPS_Point_5.sql', 'w') as sql_file:
         
         # Write the SQL statement to the file
         sql_file.write(sql)
+
+csv_file_path = 'Tow.csv'
+
+table_name = 'GPS_Point'
+
+street = pd.read_csv('Street.csv')
+stret = street['Street_Name'].unique()
+type = street['Street_Type'].unique()
+tup = street[['Street_Name', 'Street_Type']].drop_duplicates()
+tup = list(tup.itertuples(index=False, name=None))
+print(stret)
+print(type)
+
+Ngh = pd.read_csv('Neighbourhood.csv')
+Ngh = Ngh['Neighbourhood_Name'].unique()
+print(Ngh)
+
+# # Read the CSV file into a DataFrame
+df = pd.read_csv(csv_file_path)
+
+df['Tow_ID'] = [i for i in range(len(df))]
+df['Neighbourhood_Name'] = [random.choice(Ngh) for _ in range(len(df))]
+
+# Go over all rows, and split Date and Time
+for index, row in df.iterrows():
+    str2 = row['Street_Name']
+    str1 = row['Street_Type']
+
+    if (str2,str1) not in tup: 
+        df.at[index, 'Street_Name'] = None
+
+df = df[[ 'Latitude', 'Longitude', 'Neighbourhood_Name','Street_Name', 'Street_Type']]
+
+
+df = df.drop_duplicates(['Latitude', 'Longitude'])
+
+df = df.dropna(subset=["Street_Name"])
+df = df[df['Street_Type'] != None]
+print(df)
+
+# # Open a file to write the SQL statements
+with open('GPS_Point_6.sql', 'w') as sql_file:
+    for index, row in df.iterrows():
+        # Prepare the values for the SQL statement
+        values = []
+        for value in row.values:
+            if isinstance(value, int) or isinstance(value, float):
+                # Add integer as is
+                values.append(str(value))
+            else:
+                # Escape single quotes in strings and add quotes around the string
+                escaped_value = str(value).replace("'", "''")
+                values.append(f"'{escaped_value}'")
+
+        values_str = ', '.join(values)
+        columns = ', '.join(row.index)
+        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({values_str});\n"
+        
+        # Write the SQL statement to the file
+        sql_file.write(sql)
 #------------------------------------------------------------------------------------------------------
 
 
@@ -449,3 +509,61 @@ with open('Lane_Closure.sql', 'w') as sql_file:
         # Write the SQL statement to the file
         sql_file.write(sql)
 # --------------------------------------------------------------------------------------------------------
+
+#-------------------------------------------------Tow------------------------------------------------------
+csv_file_path = 'Tow.csv'
+
+table_name = 'Tow'
+
+street = pd.read_csv('Street.csv')
+stret = street['Street_Name'].unique()
+type = street['Street_Type'].unique()
+tup = street[['Street_Name', 'Street_Type']].drop_duplicates()
+tup = list(tup.itertuples(index=False, name=None))
+print(stret)
+print(type)
+
+Ngh = pd.read_csv('Neighbourhood.csv')
+Ngh = Ngh['Neighbourhood_Name'].unique()
+print(Ngh)
+
+# # Read the CSV file into a DataFrame
+df = pd.read_csv(csv_file_path)
+
+
+df['Tow_ID'] = [i for i in range(len(df))]
+
+# Go over all rows, and split Date and Time
+for index, row in df.iterrows():
+    str2 = row['Street_Name']
+    str1 = row['Street_Type']
+
+    if (str2,str1) not in tup: 
+        df.at[index, 'Street_Name'] = None
+
+df = df[['Tow_ID', 'Date', 'Time', 'Status', 'Street_Name', 'Street_Type', 'Longitude', 'Latitude']]
+df = df.dropna(subset=["Street_Name"])
+df = df[df['Street_Type'] != None]
+print(df)
+
+# Open a file to write the SQL statements
+with open('Tow.sql', 'w') as sql_file:
+    for index, row in df.iterrows():
+        # Prepare the values for the SQL statement
+        values = []
+        for value in row.values:
+            if isinstance(value, int) or isinstance(value, float):
+                # Add integer as is
+                values.append(str(value))
+            else:
+                # Escape single quotes in strings and add quotes around the string
+                escaped_value = str(value).replace("'", "''")
+                values.append(f"'{escaped_value}'")
+
+        values_str = ', '.join(values)
+        columns = ', '.join(row.index)
+        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({values_str});\n"
+        
+        # Write the SQL statement to the file
+        sql_file.write(sql)
+#----------------------------------------------------------------------------------------------------------

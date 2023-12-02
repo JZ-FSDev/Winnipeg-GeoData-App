@@ -369,6 +369,12 @@ for index, row in data.iterrows():
     type = row['Street_Type']
     data.at[index, 'Street_Type'] = dictionary[type]
 
+for index, row in data.iterrows():
+    str = row['Street_Name']
+
+    str = str.upper()
+    data.at[index, 'Street_Name'] = str
+
 # #store it to csv
 data.to_csv('Tow.csv', index=False)
 #-------------------------------------------------------------------------
