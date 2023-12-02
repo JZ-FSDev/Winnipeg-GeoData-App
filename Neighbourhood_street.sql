@@ -1,3 +1,5 @@
+use cs3380;
+
 INSERT INTO NeighBourhood_Street (Neighbourhood_Name, Street_Name, Street_Type) VALUES ('Fraipont', 'MARA', 'PL');
 INSERT INTO NeighBourhood_Street (Neighbourhood_Name, Street_Name, Street_Type) VALUES ('Kildare-Redonda', 'THOM', 'AVE');
 INSERT INTO NeighBourhood_Street (Neighbourhood_Name, Street_Name, Street_Type) VALUES ('Whyte Ridge', 'BATTLEFORD', 'BAY');

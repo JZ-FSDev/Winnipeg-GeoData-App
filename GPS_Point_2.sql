@@ -1,3 +1,5 @@
+use cs3380;
+
 INSERT INTO GPS_Point (Latitude, Longitude, Neighbourhood_Name, Street_Name, Street_Type) VALUES (49.8971808426536, -97.14058532796076, 'Spence', 'MCDERMOT', 'AVE');
 INSERT INTO GPS_Point (Latitude, Longitude, Neighbourhood_Name, Street_Name, Street_Type) VALUES (49.902149957842006, -97.13649963124136, 'North Transcona Yards', 'MAIN', 'ST');
 INSERT INTO GPS_Point (Latitude, Longitude, Neighbourhood_Name, Street_Name, Street_Type) VALUES (49.89474586697241, -97.1486341675244, 'South Portage', 'EDMONTON', 'ST');

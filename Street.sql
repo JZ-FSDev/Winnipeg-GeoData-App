@@ -1,3 +1,5 @@
+use cs3380;
+
 INSERT INTO Street (Street_Name, Street_Type, Number_Of_Houses) VALUES ('MANITOBA', 'AVE', 869);
 INSERT INTO Street (Street_Name, Street_Type, Number_Of_Houses) VALUES ('PORTAGE', 'AVE', 826);
 INSERT INTO Street (Street_Name, Street_Type, Number_Of_Houses) VALUES ('JEFFERSON', 'AVE', 789);

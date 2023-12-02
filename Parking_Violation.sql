@@ -1,3 +1,5 @@
+use cs3380;
+
 INSERT INTO Parking_Violation (Violation_Type, Fine_Amount) VALUES ('P13Fire Hydrant', 100.0);
 INSERT INTO Parking_Violation (Violation_Type, Fine_Amount) VALUES ('P12L/Z Overtime', 70.0);
 INSERT INTO Parking_Violation (Violation_Type, Fine_Amount) VALUES ('P16No Park', 70.0);

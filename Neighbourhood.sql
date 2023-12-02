@@ -1,3 +1,5 @@
+use cs3380;
+
 INSERT INTO Neighbourhood (Neighbourhood_Name, Number_Of_Houses) VALUES ('River Park South', 4000);
 INSERT INTO Neighbourhood (Neighbourhood_Name, Number_Of_Houses) VALUES ('Dakota Crossing', 3766);
 INSERT INTO Neighbourhood (Neighbourhood_Name, Number_Of_Houses) VALUES ('Rossmere-A', 3643);

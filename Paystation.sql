@@ -1,3 +1,5 @@
+use cs3380;
+
 INSERT INTO Paystation (Paystation_ID, Time_Limit, Space, Longitude, Latitude, Street_Name, Street_Type) VALUES (4222.0, '2 HOUR PARKING', 5, -97.14058532796076, 49.8971808426536, 'MCDERMOT', 'AVE');
 INSERT INTO Paystation (Paystation_ID, Time_Limit, Space, Longitude, Latitude, Street_Name, Street_Type) VALUES (3161.0, '2 HOUR PARKING', 5, -97.13649963124136, 49.902149957842006, 'MAIN', 'ST');
 INSERT INTO Paystation (Paystation_ID, Time_Limit, Space, Longitude, Latitude, Street_Name, Street_Type) VALUES (4525.0, '2 HOUR PARKING', 7, -97.1486341675244, 49.89474586697241, 'EDMONTON', 'ST');
