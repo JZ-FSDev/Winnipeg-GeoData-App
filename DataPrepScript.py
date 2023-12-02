@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+import random
 
 #Data Clean up
 
@@ -8,26 +9,26 @@ from datetime import datetime, timedelta
 data = pd.read_csv("Lane_Closure_20231019.csv")
 
 #Drop the clumns not required
-new_data = data[['Primary Street', 'Date Closed - From', 'Date Closed - To', 'Latitude', 'Longitude']]
+data = data[['Primary Street', 'Date Closed - From', 'Date Closed - To', 'Latitude', 'Longitude']]
 
 #Insert a new column into dataframe
-new_data.insert(1, 'Street_Type', '')
+data.insert(1, 'Street_Type', '')
 
 #Rename columns
-new_data.rename(columns = {'Primary Street':'Street_Name', 'Date Closed - From':'Date_From', 'Date Closed - To':'Date_To'}, inplace = True)
+data.rename(columns = {'Primary Street':'Street_Name', 'Date Closed - From':'Date_From', 'Date Closed - To':'Date_To'}, inplace = True)
 
 #Go over all rows, and split street name and type
-for index, row in new_data.iterrows():
+for index, row in data.iterrows():
     tokens = row['Street_Name'].split()
 
     if(len(tokens) == 1):
-        new_data.at[index, 'Street_Name'] = tokens[0]
+        data.at[index, 'Street_Name'] = tokens[0]
     else:
         # Reconstructing 'Street_Name' without the last token
-        new_data.at[index, 'Street_Name'] = ' '.join(tokens[:-1])
+        data.at[index, 'Street_Name'] = ' '.join(tokens[:-1])
         
         # Assigning the last token to 'Street_Type'
-        new_data.at[index, 'Street_Type'] = tokens[-1]
+        data.at[index, 'Street_Type'] = tokens[-1]
 
 # Convert to datetime
 data['Date_From'] = pd.to_datetime(data['Date_From'], format='%B %d %Y').dt.date
@@ -51,8 +52,15 @@ for index, row in data.iterrows():
     type = row['Street_Type']
     data.at[index, 'Street_Type'] = dictionary[type]
 
+
+for index, row in data.iterrows():
+    str = row['Street_Name']
+
+    str = str.upper()
+    data.at[index, 'Street_Name'] = str
+
 # Write DataFrame to a CSV file
-new_data.to_csv('LaneClosure.csv', index=False)
+data.to_csv('LaneClosure.csv', index=False)
 #-------------------------------------------------------------------------
 
 #--------------------------Parking Citation------------------------
@@ -98,6 +106,97 @@ data.rename(columns = {'Violation':'Violation_Type'}, inplace = True)
 data.to_csv('Parking_Citation.csv', index=False)
 #-------------------------------------------------------------------------
 
+#------------------------------Citation_Street------------------------------
+data = pd.read_csv("Parking_Contravention__Citations.csv", dtype={6: object})
+
+new_data = data[['Issue Date', 'Violation', 'Location', 'Street']]
+
+#Drop all rows with NaN value in latitide and longitude
+data = new_data.dropna(subset=['Location'])
+
+# Splitting the Location column and expanding into two columns
+split = data['Location'].str.strip('()').str.split(', ', expand=True)
+
+# Converting the new columns to float
+data.loc[:,'Latitude'] = split[0].astype(float)
+data.loc[:,'Longitude'] = split[1].astype(float)
+
+#Drop the Location column from data frame
+data = data[['Issue Date', 'Violation', 'Latitude', 'Longitude', 'Street']]
+
+#Insert new columns into dataframe
+data.insert(1, 'Issue_Date', '')
+data.insert(2, 'Time', '')
+
+#Go over all rows, and split Date and Time
+for index, row in data.iterrows():
+    date_time_str = row['Issue Date']
+
+    date_time_obj = datetime.strptime(date_time_str, '%m/%d/%Y %I:%M:%S %p')
+
+    # Extract date and time
+    data.at[index, 'Issue_Date'] = date_time_obj.date()
+    data.at[index, 'Time'] = date_time_obj.time()
+
+
+#Drop the Issue Date column from data frame
+data = data[['Issue_Date', 'Time', 'Violation', 'Latitude', 'Longitude', 'Street']]
+
+#Rename columns
+data.rename(columns = {'Violation':'Violation_Type', 'Street':'Street_Name'}, inplace = True)
+
+data.insert(6, 'Street_Type', '')
+
+#Go over all rows, and split street name and type
+for index, row in data.iterrows():
+    tokens = row['Street_Name'].split()
+
+    if(len(tokens) == 1):
+        data.at[index, 'Street_Name'] = tokens[0]
+    else:
+        # Reconstructing 'Street_Name' without the last token
+        data.at[index, 'Street_Name'] = ' '.join(tokens[:-1])
+        
+        # Assigning the last token to 'Street_Type'
+        data.at[index, 'Street_Type'] = tokens[-1]
+
+print(data)
+# #store it to csv
+data.to_csv('Parking_Citation_Street.csv', index=False)
+
+csv_file_path = 'Parking_Citation_Street.csv'
+
+table_name = 'Parking_Citation'
+
+street = pd.read_csv('Street.csv')
+stret = street['Street_Name'].unique()
+type = street['Street_Type'].unique()
+print(stret)
+print(type)
+
+Ngh = pd.read_csv('Neighbourhood.csv')
+Ngh = Ngh['Neighbourhood_Name'].unique()
+print(Ngh)
+
+# # Read the CSV file into a DataFrame
+df = pd.read_csv(csv_file_path)
+
+df['Neighbourhood_Name'] = [random.choice(Ngh) for _ in range(len(df))]
+
+#Go over all rows, and split Date and Time
+for index, row in df.iterrows():
+    str = row['Street_Name']
+
+    str = str.upper()
+    df.at[index, 'Street_Name'] = str
+
+# df = df[['Latitude', 'Longitude', 'Neighbourhood_Name', 'Street_Name', 'Street_Type']]
+
+df = df[df['Street_Name'].isin(stret)]
+df = df[df['Street_Type'].isin(type)]
+df.to_csv('Parking_Citation_Street.csv', index=False)
+#-------------------------------------------------------------------------
+
 #--------------------------Parking Violation------------------------
 data = pd.read_csv("Parking_Contravention__Citations.csv", dtype={6: object})
 
@@ -109,8 +208,11 @@ data = new_data.drop_duplicates()
 #Rename columns
 data.rename(columns = {'Violation':'Violation_Type', 'Full Fine':'Fine_Amount'}, inplace = True)
 
+df = data.dropna(subset=['Fine_Amount'])
+df = df.dropna(subset=['Violation_Type'])
+
 #store it to csv
-data.to_csv('Parking_Violation.csv', index=False)
+df.to_csv('Parking_Violation.csv', index=False)
 #-------------------------------------------------------------------------
 
 #--------------------------Neighbourhood------------------------
