@@ -2,7 +2,15 @@ import pyodbc
 import config_reader as cr
 
 
-script_file = "script.sql"  # Script to generate our tables and insert our data
+script_file = "script.sql"  # Script to generate our tables
+street_file = "Street.sql"  # Script to insert Street info
+neighbourhood_file = "Neighbourhood.sql"  # Script to insert Neighbourhood info
+neighbourhood_street_file = "Neighbourhood_street.sql"  # Script to insert Neighbourhood_steet info
+substance_file = "Substances.sql"  # Script to insert Substance info
+wfps_call_file_1 = "WFPS_Call_1.sql"  # Script to insert WFPS Call part 1 info
+wfps_call_file_2 = "WFPS_Call_2.sql"  # Script to insert WFPS Call part 2 info
+
+### Consider using multi threaded insert and transactions for the insert ###
 
 
 # Logs into the sql server and returns a new connection
@@ -20,6 +28,7 @@ def connect_to_sql_server():
     # Connect to the database
     try:
         connection = pyodbc.connect(connection_string)
+        print("Connected to MSSQL sever successfully")
         return connection
     except pyodbc.Error as e:
         print(f"Error connecting to the database: {e}")
@@ -37,6 +46,39 @@ def populate_database(connection):
             script_content = script.read()
             cursor.execute(script_content)
         print("Script executed successfully.")
+
+        with open(street_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        print("Streets inserted successfully.")
+
+        with open(neighbourhood_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        print("Neighbourhoods inserted successfully.")
+
+        with open(neighbourhood_street_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        print("Neighbourhood_Streets inserted successfully.")
+
+        with open(substance_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        print("Substances inserted successfully.")
+
+        # with open(wfps_call_file_1) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("WFPS_Calls part 1 inserted successfully.")
+
+        # with open(wfps_call_file_2) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("WFPS_Calls part 2 inserted successfully.")
+
+
+        print("All data inserted successfully")
     except FileNotFoundError:
         print(f"Could not find the script file: {script_file}")
     except pyodbc.Error as e:
@@ -76,7 +118,7 @@ def total_wfps_call_neighbourhood(connection):
             n.Neighbourhood_Name;
     '''
 
-    execute_query(connection, query)
+    return execute_query(connection, query)
 
 
 # List all Streets along with the count of Parking Citations for each street, ordered by the street name
@@ -95,7 +137,7 @@ def count_parking_citation_street(connection):
             s.Street_Name;
     '''
 
-    execute_query(connection, query)
+    return execute_query(connection, query)
 
 
 # Retrieve the Bus Routes along with the average deviation for each route, ordered by route number
@@ -113,7 +155,7 @@ def bus_route_avg_deviation(connection):
             br.Route_Number;
     '''
 
-    execute_query(connection, query)
+    return execute_query(connection, query)
 
 
 
@@ -132,7 +174,7 @@ def total_substance_neighbourhood(connection):
             Substance_Count DESC;
     '''
 
-    execute_query(connection, query)
+    return execute_query(connection, query)
 
 
 
@@ -152,7 +194,7 @@ def count_lane_closure_street(connection):
             lc.Street_Name, lc.Street_Type;
     '''
 
-    execute_query(connection, query)
+    return execute_query(connection, query)
 
 
 
@@ -172,7 +214,7 @@ def street_paystation(connection):
             s.Street_Name, s.Street_Type;
     '''
 
-    execute_query(connection, query)
+    return execute_query(connection, query)
 
 
 
@@ -191,7 +233,7 @@ def count_tow_neighbourhood(connection):
             n.Neighbourhood_Name;
     '''
 
-    execute_query(connection, query)
+    return execute_query(connection, query)
 
 
 
@@ -214,7 +256,7 @@ def bus_stop_neighbourhood_bus_route(connection):
             bs.Bus_Stop_Number;
     '''
 
-    execute_query(connection, query)
+    return execute_query(connection, query)
 
 
 
@@ -233,7 +275,7 @@ def latest_wfps_neighbourhood(connection):
             n.Neighbourhood_Name, w.Call_Date DESC;
     '''
 
-    execute_query(connection, query)
+    return execute_query(connection, query)
 
 
 # List all Streets with the count of Bus Stops on each street, ordered by Street Name
@@ -252,4 +294,4 @@ def count_bus_stop_street(connection):
             s.Street_Name;
     '''
 
-    execute_query(connection, query)
+    return execute_query(connection, query)

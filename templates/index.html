@@ -5,68 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Winnipeg Geo Data</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-image: url('background.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-            background-color: rgba(255, 255, 255);
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            /* Set container background color */
-            padding: 20px;
-            /* Add padding for better visibility */
-            border-radius: 10px;
-            /* Add border-radius for rounded corners */
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 4em;
-            /* 4x larger */
-        }
-
-        h2 {
-            text-align: center;
-        }
-
-        #results-container {
-            overflow-y: scroll;
-            height: 300px;
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
-
-        #map-iframe {
-            width: 100%;
-            /* Ensure the iframe takes the full width */
-            height: 600px;
-            border: none;
-            /* Remove border */
-            margin: 0;
-            /* Remove margin */
-        }
-
-        #submit-btn {
-            margin-bottom: 10px;
-        }
-
-        /* Style for checkbox columns */
-        .checkbox-columns {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .checkbox-column {
-            flex: 0 0 30%; /* 30% width for each column */
-        }
-    </style>
+    <link rel="stylesheet" href="static/style.css">
 </head>
 
 <body>
@@ -102,7 +41,7 @@
                 <h3>Query:
                     <select id="query-dropdown" name="query">
                         <option value="" disabled selected>Select a Query</option>
-                        <option value="Query1">Query1</option>
+                        <option value="total_wfps_call_neighbourhood">total_wfps_call_neighbourhood</option>
                         <option value="Query2">Query2</option>
                         <option value="Query3">Query3</option>
                     </select>
@@ -122,7 +61,7 @@
                     </p>
             </section>
 
-            <button type="submit" id="submit-btn">Execute</button>
+            <button type="submit" id="execute-btn">Execute</button>
         </form>
 
         <section>
@@ -134,9 +73,12 @@
         </section>
 
         <section>
-            <iframe src="interactive_map.html" width="800" height="700" id="map-iframe"></iframe>
+            <iframe src="static/interactive_map.html" width="800" height="700" id="map-iframe"></iframe>
         </section>
     </div>
+
+    <script src="static/script.js"></script>
+
 </body>
 
 </html>

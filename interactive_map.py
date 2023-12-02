@@ -26,4 +26,4 @@ def update_map():
                             size_max=15)  # Set the maximum size of the dots
 
     # Save the interactive map as an HTML file
-    offline.plot(fig, filename='interactive_map.html', auto_open=False)
+    offline.plot(fig, filename='templates/interactive_map.html', auto_open=False)

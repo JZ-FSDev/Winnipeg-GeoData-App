@@ -1,0 +1,52 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-image: url('background.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    background-color: rgba(255, 255, 255);
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 4em;
+}
+
+h2 {
+    text-align: center;
+}
+
+#results-container {
+    overflow-y: scroll;
+    height: 300px;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+#map-iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    margin: 0;
+}
+
+#execute-btn {
+    margin-bottom: 10px;
+}
+
+.checkbox-columns {
+    display: flex;
+    justify-content: space-between;
+}
+
+.checkbox-column {
+    flex: 0 0 30%;
+}
