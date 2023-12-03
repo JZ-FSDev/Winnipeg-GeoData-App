@@ -80,7 +80,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const queryDescriptions = {
         "total_substance_neighbourhood": "List all Neighbourhoods with the total number of Substances used, ordered by the total number of substances in descending order",
         "count_lane_closure_street": "Retrieve the total count of Lane Closures for each Street and Street Type, ordered by Street Name and Street Type",
-        "Query3": "Description for Query3",
+        "total_wfps_call_neighbourhood": "Retrieve Neighbourhood names along with the total number of houses and the count of WFPS calls for each Neighbourhood, ordered by Neighbourhood name",
+        "count_parking_citation_street": "List all Streets along with the count of Parking Citations for each street, ordered by the street name",
+        "bus_route_avg_deviation": "Retrieve the Bus Routes along with the average deviation for each route, ordered by route number",
+        "street_paystation": "List all Streets and their respective Paystation information, ordered by Street Name",
+        "count_tow_neighbourhood": "Retrieve the total count of Tow incidents for each Neighbourhood, ordered by Neighbourhood name",
+        "bus_stop_neighbourhood_bus_route": "List all Bus Stops with their corresponding Neighbourhood and Bus Route information, ordered by Bus Stop Number",
+        "latest_wfps_neighbourhood": "Retrieve the latest WFPS call for each Neighbourhood, ordered by Neighbourhood name",
+        "count_bus_stop_street": "List all Streets with the count of Bus Stops on each street, ordered by Street Name",
+
         // Add more queries and descriptions as needed
     };
 

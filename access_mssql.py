@@ -232,6 +232,7 @@ def execute_query(connection, query):
         return rows
 
     except pymssql.Error as e:
+        connection.close()
         print(f"Error executing the query: {e}")
 
     finally:
@@ -239,6 +240,7 @@ def execute_query(connection, query):
         cursor.close() 
 
 
+# Freezes due to too many WFPS Calls
 # Retrieve Neighbourhood names along with the total number of houses and the count of WFPS calls for each Neighbourhood, ordered by Neighbourhood name
 def total_wfps_call_neighbourhood(connection):
     query = '''
@@ -263,13 +265,14 @@ def count_parking_citation_street(connection):
     query = '''
         SELECT
             s.Street_Name,
+            s.Street_Type,
             COUNT(pc.Citation_ID) AS Citation_Count
         FROM
             Street s
             LEFT JOIN GPS_Point gp ON s.Street_Name = gp.Street_Name AND s.Street_Type = gp.Street_Type
             LEFT JOIN Parking_Citation pc ON gp.Longitude = pc.Longitude AND gp.Latitude = pc.Latitude
         GROUP BY
-            s.Street_Name
+            s.Street_Name, s.Street_Type
         ORDER BY
             s.Street_Name;
     '''
@@ -402,31 +405,33 @@ def latest_wfps_neighbourhood(connection):
     query = '''
         SELECT
             n.Neighbourhood_Name,
-            w.Call_Date,
+            w.Date,
             w.Reason,
             w.Call_Time
         FROM
             Neighbourhood n
             LEFT JOIN WFPS_Call w ON n.Neighbourhood_Name = w.Neighbourhood_Name
         ORDER BY
-            n.Neighbourhood_Name, w.Call_Date DESC;
+            n.Neighbourhood_Name;
     '''
 
     return execute_query(connection, query)
 
 
+# No results because matching on GPS_Point
 # List all Streets with the count of Bus Stops on each street, ordered by Street Name
 def count_bus_stop_street(connection):
     query = '''
         SELECT
             s.Street_Name,
+            s.Street_Type,
             COUNT(bs.Row_ID) AS Bus_Stop_Count
         FROM
             Street s
             LEFT JOIN GPS_Point gp ON s.Street_Name = gp.Street_Name AND s.Street_Type = gp.Street_Type
             LEFT JOIN Bus_Stop bs ON gp.Longitude = bs.Longitude AND gp.Latitude = bs.Latitude
         GROUP BY
-            s.Street_Name
+            s.Street_Name, s.Street_Type
         ORDER BY
             s.Street_Name;
     '''
