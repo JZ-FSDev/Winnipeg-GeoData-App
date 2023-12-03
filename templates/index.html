@@ -5,50 +5,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Winnipeg Geo Data</title>
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
     <div class="container">
         <h1>Winnipeg Geo Data</h1>
 
-        <form id="query-form" action="/submit" method="post">
-            <section>
-                <h3>Filter by Query Involving:</h2>
-                    <div class="checkbox-columns">
-                        <div class="checkbox-column">
-                            <input type="checkbox" id="filter-time" name="filter-time"> Time<br>
-                            <input type="checkbox" id="filter-day" name="filter-day"> Day<br>
-                            <input type="checkbox" id="filter-gps" name="filter-gps"> GPS Point<br>
-                            <input type="checkbox" id="filter-street" name="filter-street"> Street<br>
-                        </div>
-                        <div class="checkbox-column">
-                            <input type="checkbox" id="filter-neighbourhood" name="filter-neighbourhood"> Neighbourhood<br>
-                            <input type="checkbox" id="filter-paystation" name="filter-paystation"> Paystation<br>
-                            <input type="checkbox" id="filter-lane" name="filter-lane"> Lane Closure<br>
-                            <input type="checkbox" id="filter-bus-stop" name="filter-bus-stop"> Bus Stop<br>
-                        </div>
-                        <div class="checkbox-column">
-                            <input type="checkbox" id="filter-bus-route" name="filter-bus-route"> Bus Route<br>
-                            <input type="checkbox" id="filter-tow" name="filter-tow"> Tow<br>
-                            <input type="checkbox" id="filter-substance-abuse" name="filter-substance-abuse"> Substance Abuse<br>
-                            <input type="checkbox" id="filter-wfps-call" name="filter-wfps-call"> WFPS Call<br>
-                        </div>
+        <section>
+            <h3>Filter by Query Involving:</h2>
+                <div class="checkbox-columns">
+                    <div class="checkbox-column">
+                        <input type="checkbox" id="filter-time" name="filter-time"> Time<br>
+                        <input type="checkbox" id="filter-day" name="filter-day"> Day<br>
+                        <input type="checkbox" id="filter-gps" name="filter-gps"> GPS Point<br>
+                        <input type="checkbox" id="filter-street" name="filter-street"> Street<br>
                     </div>
-            </section>
+                    <div class="checkbox-column">
+                        <input type="checkbox" id="filter-neighbourhood" name="filter-neighbourhood"> Neighbourhood<br>
+                        <input type="checkbox" id="filter-paystation" name="filter-paystation"> Paystation<br>
+                        <input type="checkbox" id="filter-lane" name="filter-lane"> Lane Closure<br>
+                        <input type="checkbox" id="filter-bus-stop" name="filter-bus-stop"> Bus Stop<br>
+                    </div>
+                    <div class="checkbox-column">
+                        <input type="checkbox" id="filter-bus-route" name="filter-bus-route"> Bus Route<br>
+                        <input type="checkbox" id="filter-tow" name="filter-tow"> Tow<br>
+                        <input type="checkbox" id="filter-substance-abuse" name="filter-substance-abuse"> Substance
+                        Abuse<br>
+                        <input type="checkbox" id="filter-wfps-call" name="filter-wfps-call"> WFPS Call<br>
+                    </div>
+                </div>
+        </section>
 
-            <section>
-                <h3>Query:
-                    <select id="query-dropdown" name="query">
-                        <option value="" disabled selected>Select a Query</option>
-                        <option value="total_wfps_call_neighbourhood">total_wfps_call_neighbourhood</option>
-                        <option value="Query2">Query2</option>
-                        <option value="Query3">Query3</option>
-                    </select>
-                </h3>
-                <h3>Query Description:</h3>
-            </section>
+        <section>
+            <h3>Query:
+                <select id="query-dropdown" name="query">
+                    <option value="" disabled selected>Select a Query</option>
+                    <option value="total_substance_neighbourhood">total_substance_neighbourhood</option>
+                    <option value="count_lane_closure_street">count_lane_closure_street</option>
+                    <option value="Query3">Query3</option>
+                </select>
+            </h3>
+            <h3>Query Description:</h3>
+            <p id="query-description"></p>
+        </section>
 
+        <form id="query-form" action="/submit" method="post">
             <section>
                 <h3>Specify Query Parameters:</h2>
                     <p>Number of Results: <input type="text" id="num-results" name="num-results"></p>
@@ -73,11 +75,11 @@
         </section>
 
         <section>
-            <iframe src="static/interactive_map.html" width="800" height="700" id="map-iframe"></iframe>
+            <iframe src="/static/interactive_map.html" width="800" height="700" id="map-iframe"></iframe>
         </section>
     </div>
 
-    <script src="static/script.js"></script>
+    <script src="/static/script.js"></script>
 
 </body>
 

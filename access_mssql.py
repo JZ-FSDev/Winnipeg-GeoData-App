@@ -1,4 +1,4 @@
-import pyodbc
+import pymssql
 import config_reader as cr
 
 
@@ -9,30 +9,52 @@ neighbourhood_street_file = "Neighbourhood_street.sql"  # Script to insert Neigh
 substance_file = "Substances.sql"  # Script to insert Substance info
 wfps_call_file_1 = "WFPS_Call_1.sql"  # Script to insert WFPS Call part 1 info
 wfps_call_file_2 = "WFPS_Call_2.sql"  # Script to insert WFPS Call part 2 info
+gps_point_file_1 = "GPS_Point_1.sql"
+gps_point_file_2 = "GPS_Point_2.sql"
+gps_point_file_3 = "GPS_Point_3.sql"
+gps_point_file_4 = "GPS_Point_4.sql"
+gps_point_file_5 = "GPS_Point_5.sql"
+gps_point_file_6 = "GPS_Point_6.sql"
+gps_point_file_7 = "GPS_Point_7.sql"
+paystation_file = "Paystation.sql"
+parking_violation_file = "Parking_Violation.sql"
+lane_closure_file = "Lane_Closure.sql"
+tow_file = "Tow.sql"
+bus_route_file = "Bus_Route.sql"
+bus_stop_file_1 = "Bus_Stop_1.sql"
+bus_stop_file_2 = "Bus_Stop_2.sql"
+bus_stop_file_3 = "Bus_Stop_3.sql"
+
 
 ### Consider using multi threaded insert and transactions for the insert ###
 
 
 # Logs into the sql server and returns a new connection
-def connect_to_sql_server():
+import pymssql
 
+def connect_to_sql_server():
     # Read database credentials from a configuration file
     username, password = cr.get_username_password()
 
-    # Define the connection string
+    # Define the connection string with the default database and schema
     server = 'uranium.cs.umanitoba.ca'
     database = 'cs3380'
-    driver = '{SQL Server}'
-    connection_string = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password};'
+    connection_string = {
+        'host': server,
+        'user': username,
+        'password': password,
+        'database': database,
+    }
 
     # Connect to the database
     try:
-        connection = pyodbc.connect(connection_string)
-        print("Connected to MSSQL sever successfully")
+        connection = pymssql.connect(**connection_string)
+        print("Connected to MSSQL server successfully")
         return connection
-    except pyodbc.Error as e:
+    except pymssql.Error as e:
         print(f"Error connecting to the database: {e}")
         exit(1)
+
 
 
 # Populates the database by executing the sql script on the MSSQL server
@@ -77,11 +99,93 @@ def populate_database(connection):
         #     cursor.execute(script_content)
         # print("WFPS_Calls part 2 inserted successfully.")
 
+        # with open(gps_point_file_1) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("GPS_Point part 1 inserted successfully.")
+
+        # with open(gps_point_file_2) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("GPS_Point part 2 inserted successfully.")
+
+        # # FK ERROR
+        # with open(gps_point_file_3) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("GPS_Point part 3 inserted successfully.")
+
+        # # FK ERROR
+        # with open(gps_point_file_4) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("GPS_Point part 4 inserted successfully.")
+
+        # with open(gps_point_file_5) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("GPS_Point part 5 inserted successfully.")
+
+        # with open(gps_point_file_6) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("GPS_Point part 6 inserted successfully.")     
+
+        # with open(gps_point_file_7) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("GPS_Point part 7 inserted successfully.")             
+
+        # Time Limit is String
+        # with open(paystation_file) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("Paystations inserted successfully.")
+
+        # with open(parking_violation_file) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("Parking_Violations inserted successfully.")
+
+        # FK ERROR
+        # with open(lane_closure_file) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("Lane_Closures inserted successfully.")        
+
+        # FK ERROR
+        # with open(tow_file) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("Tows inserted successfully.")  
+
+        # with open(bus_route_file) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("Bus_Routes inserted successfully.")  
+
+        # FK ERROR
+        # with open(bus_stop_file_1) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("Bus_Stops part 1 inserted successfully.")  
+                     
+        # FK ERROR
+        # with open(bus_stop_file_2) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("Bus_Stops part 2 inserted successfully.")  
+
+        # FK ERROR
+        # with open(bus_stop_file_3) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # print("Bus_Stops part 3 inserted successfully.")  
 
         print("All data inserted successfully")
     except FileNotFoundError:
         print(f"Could not find the script file: {script_file}")
-    except pyodbc.Error as e:
+    except pymssql.Error as e:
         print(f"Error executing the script: {e}")
 
 
@@ -94,7 +198,7 @@ def execute_query(connection, query):
 
         return rows
 
-    except pyodbc.Error as e:
+    except pymssql.Error as e:
         print(f"Error executing the query: {e}")
 
     finally:

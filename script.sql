@@ -41,7 +41,7 @@ CREATE TABLE Neighbourhood_Street (
 );
 
 CREATE TABLE WFPS_Call(
-    WFPS_Call_ID INT NOT NULL,
+    WFPS_Call_ID BIGINT NOT NULL,
     Date TEXT,
     Reason VARCHAR(100), 
     Call_Time TEXT,

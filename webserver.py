@@ -5,7 +5,6 @@ from flask import Flask, jsonify, render_template
 import config_reader as cr
 
 
-populated = False  # Flag to ensure database is populated only once
 db_connection = None  # A connection to our db  (May choose to make a new connection each time)
 
 app = Flask(__name__)
@@ -24,11 +23,24 @@ def total_wfps_call_neighbourhood():
     result = ms.total_wfps_call_neighbourhood(db_connection)
     print(result)
 
-@app.route('/api/total_substance_neighbourhood', methods=['GET'])
+@app.route('/api/total_substance_neighbourhood', methods=['POST'])
 def total_substance_neighbourhood():
     result = ms.total_substance_neighbourhood(db_connection)
     print(result)
-    return jsonify({'message': 'Hello, World!'})
+    # Convert the result to a JSON-friendly format
+    json_result = [{'neighbourhood': item[0], 'count': item[1]} for item in result]
+
+    return jsonify({'result': json_result})
+
+@app.route('/api/count_lane_closure_street', methods=['POST'])
+def count_lane_closure_street():
+    result = ms.count_lane_closure_street(db_connection)
+
+
+    # Convert the result to a JSON-friendly format
+    json_result = [{'neighbourhood': item[0], 'count': item[1]} for item in result]
+
+    return jsonify({'result': json_result})
 
 # Route for the index.html page
 @app.route('/')
@@ -39,14 +51,11 @@ def index():
 
 
 def main():
-    global populated
     global db_connection
 
-    if not populated:
-        host, port = cr.get_host_port()
-        db_connection = ms.connect_to_sql_server()
-        ms.populate_database(db_connection)
-        populated = True
+    host, port = cr.get_host_port()
+    db_connection = ms.connect_to_sql_server()
+    ms.populate_database(db_connection)
 
     app.run(debug=True, host=host, port=port, use_reloader=False)
 
