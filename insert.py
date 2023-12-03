@@ -377,6 +377,44 @@ with open('GPS_Point_6.sql', 'w') as sql_file:
         
         # Write the SQL statement to the file
         sql_file.write(sql)
+
+csv_file_path = 'BusData.csv'
+
+table_name = 'GPS_Point'
+
+
+# Read the CSV file into a DataFrame
+df = pd.read_csv(csv_file_path)
+df = df.drop_duplicates()
+
+df['Neighbourhood_Name'] = ['null' for _ in range(len(df))]
+df['Street_Name'] = ['null' for _ in range(len(df))]
+df['Street_Type'] = ['null' for _ in range(len(df))]
+
+df = df[[ 'Latitude', 'Longitude', 'Neighbourhood_Name','Street_Name', 'Street_Type']]
+
+df = df.drop_duplicates(['Latitude', 'Longitude'])
+
+# Open a file to write the SQL statements
+with open('GPS_Point_7.sql', 'w') as sql_file:
+    for index, row in df.iterrows():
+        # Prepare the values for the SQL statement
+        values = []
+        for value in row.values:
+            if isinstance(value, int) or isinstance(value, float) or value == "null":
+                # Add integer as is
+                values.append(str(value))
+            else:
+                # Escape single quotes in strings and add quotes around the string
+                escaped_value = str(value).replace("'", "''")
+                values.append(f"'{escaped_value}'")
+
+        values_str = ', '.join(values)
+        columns = ', '.join(row.index)
+        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({values_str});\n"
+        
+        # Write the SQL statement to the file
+        sql_file.write(sql)
 #------------------------------------------------------------------------------------------------------
 
 
@@ -567,3 +605,75 @@ with open('Tow.sql', 'w') as sql_file:
         # Write the SQL statement to the file
         sql_file.write(sql)
 #----------------------------------------------------------------------------------------------------------
+
+#---------------------------------------------Bus_Route------------------------------------------------------
+csv_file_path = 'Bus_Route.csv'
+
+table_name = 'Bus_Route'
+
+# Read the CSV file into a DataFrame
+df = pd.read_csv(csv_file_path)
+df = df.drop_duplicates()
+
+df = df.dropna(subset=["Route_Destination"])
+df = df.dropna(subset=["Route_Name"])
+df = df.dropna(subset=["Route_Number"])
+# df = df[df['Street_Type'] != None]
+print(df)
+
+# Open a file to write the SQL statements
+with open('Bus_Route.sql', 'w') as sql_file:
+    for index, row in df.iterrows():
+        # Prepare the values for the SQL statement
+        values = []
+        for value in row.values:
+            if isinstance(value, int) or isinstance(value, float):
+                # Add integer as is
+                values.append(str(value))
+            else:
+                # Escape single quotes in strings and add quotes around the string
+                escaped_value = str(value).replace("'", "''")
+                values.append(f"'{escaped_value}'")
+
+        values_str = ', '.join(values)
+        columns = ', '.join(row.index)
+        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({values_str});\n"
+        
+        # Write the SQL statement to the file
+        sql_file.write(sql)
+# --------------------------------------------------------------------------------------------------------
+
+#---------------------------------------------Bus_Stop------------------------------------------------------
+csv_file_path = 'BusData.csv'
+
+table_name = 'Bus_Stop'
+
+# # Read the CSV file into a DataFrame
+df = pd.read_csv(csv_file_path)
+df = df.drop_duplicates()
+
+df = df[['Row_ID', 'Bus_Stop_Number', 'Scheduled_Time', 'Date', 'Deviation', 'Route_Number', 'Route_Destination', 'Longitude', 'Latitude']]
+
+print(df)
+
+# Open a file to write the SQL statements
+with open('Bus_Stop.sql', 'w') as sql_file:
+    for index, row in df.iterrows():
+        # Prepare the values for the SQL statement
+        values = []
+        for value in row.values:
+            if isinstance(value, int) or isinstance(value, float):
+                # Add integer as is
+                values.append(str(value))
+            else:
+                # Escape single quotes in strings and add quotes around the string
+                escaped_value = str(value).replace("'", "''")
+                values.append(f"'{escaped_value}'")
+
+        values_str = ', '.join(values)
+        columns = ', '.join(row.index)
+        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({values_str});\n"
+        
+        # Write the SQL statement to the file
+        sql_file.write(sql)
+# --------------------------------------------------------------------------------------------------------
