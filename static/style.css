@@ -50,3 +50,26 @@ h2 {
 .checkbox-column {
     flex: 0 0 30%;
 }
+
+/* styles.css */
+
+/* Apply styling to the table */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+/* Apply styling to header cells */
+th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    min-width: 100px; /* Minimum width for header cells */
+}
+
+/* Apply styling to body cells */
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}

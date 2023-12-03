@@ -20,39 +20,59 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             // Handle the response data
             console.log('API Response:', data);
-        
+
             // Update the results container with the response
             const resultsContainer = document.getElementById('results-container');
-        
-            if (data.result.length > 0) {
-                // Create a table element
+            
+            // Check if there are results
+            if (data.result && data.result.length > 0) {
+                // Build the table dynamically
                 const table = document.createElement('table');
-        
-                // Create table header
-                const headerRow = table.insertRow();
-                const headerNeighbourhood = headerRow.insertCell(0);
-                headerNeighbourhood.textContent = 'Neighbourhood';
-                const headerCount = headerRow.insertCell(1);
-                headerCount.textContent = 'Count';
-        
-                // Populate table with data
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+
+                // Create header row
+                const headerRow = document.createElement('tr');
+                for (const key in data.result[0]) {
+                    const th = document.createElement('th');
+                    th.textContent = key;
+                    headerRow.appendChild(th);
+                }
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+
+                // Create body rows
                 data.result.forEach(item => {
-                    const row = table.insertRow();
-                    const cellNeighbourhood = row.insertCell(0);
-                    cellNeighbourhood.textContent = item.neighbourhood;
-                    const cellCount = row.insertCell(1);
-                    cellCount.textContent = item.count;
+                    const tr = document.createElement('tr');
+                    for (const key in item) {
+                        const td = document.createElement('td');
+                        td.textContent = item[key];
+                        tr.appendChild(td);
+                    }
+                    tbody.appendChild(tr);
                 });
-        
-                // Append the table to the results container
+
+                table.appendChild(tbody);
+
+                // Clear previous results and append the new table
+                resultsContainer.innerHTML = '';
                 resultsContainer.appendChild(table);
             } else {
-                // Display a message if there are no results
-                resultsContainer.innerHTML += '<p>No Results</p>';
+                // If no results, display a "No Results" message
+                resultsContainer.innerHTML = '<p>No Results</p>';
             }
         })
+        .catch(error => {
+            // Handle errors
+            console.error('API Error:', error);
+
+            // Update the results container with the error message
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.innerHTML = '<p>Error: ' + error.message + '</p>';
+        });
     });
 });
+
 
 
 document.addEventListener("DOMContentLoaded", function () {
