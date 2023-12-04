@@ -91,7 +91,7 @@ def main():
 
     host, port = cr.get_host_port()
     db_connection = ms.connect_to_sql_server()
-    # ms.populate_database(db_connection)
+    ms.populate_database(db_connection)
 
     app.run(debug=True, host=host, port=port, use_reloader=False)
     # app.run(debug=True, host=host, port=port)

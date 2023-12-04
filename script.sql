@@ -42,7 +42,7 @@ CREATE TABLE Neighbourhood_Street (
 
 CREATE TABLE WFPS_Call(
     WFPS_Call_ID BIGINT NOT NULL,
-    Date TEXT,
+    Date DATE,
     Reason VARCHAR(100), 
     Call_Time TEXT,
     Neighbourhood_Name VARCHAR(255),
@@ -51,8 +51,8 @@ CREATE TABLE WFPS_Call(
 
 CREATE TABLE Substances(
     Substance_Use_ID INT NOT NULL,
-    Date TEXT, 
-    Time TEXT,
+    Date DATE, 
+    Time TIME,
     Substance VARCHAR(100),
     Neighbourhood_Name VARCHAR(255),
     FOREIGN KEY (Neighbourhood_Name) REFERENCES Neighbourhood(Neighbourhood_Name) 
@@ -91,7 +91,7 @@ CREATE TABLE Parking_Violation (
 CREATE TABLE Parking_Citation (
     Citation_ID INT NOT NULL,
     Issue_Date TEXT,
-    Time TEXT,
+    Time TIME,
     Violation_Type VARCHAR(255),
     Longitude DECIMAL(11,8),
     Latitude DECIMAL(11,8),
@@ -102,8 +102,8 @@ CREATE TABLE Parking_Citation (
 
 CREATE TABLE Lane_Closure (
     Lane_Closure_ID INT NOT NULL,
-    Date_To TEXT,
-    Date_From TEXT,
+    Date_To DATE,
+    Date_From DATE,
     Street_Name VARCHAR(255),
     Street_Type VARCHAR(50),
     Longitude DECIMAL(11,8),
@@ -115,8 +115,8 @@ CREATE TABLE Lane_Closure (
 
 CREATE TABLE Tow (
     Tow_ID INT NOT NULL,
-    Date TEXT,
-    Time TEXT,
+    Date DATE,
+    Time TIME,
     Status VARCHAR(50),
     Street_Name VARCHAR(255),
     Street_Type VARCHAR(50),
@@ -137,8 +137,8 @@ CREATE TABLE Bus_Route (
 CREATE TABLE Bus_Stop (
     Row_ID INT NOT NULL,
     Bus_Stop_Number INT NOT NULL,
-    Scheduled_Time TEXT,
-    Date TEXT,
+    Scheduled_Time TIME,
+    Date DATE,
     Deviation INT,
     Route_Number VARCHAR(50),
     Route_Destination VARCHAR(100),

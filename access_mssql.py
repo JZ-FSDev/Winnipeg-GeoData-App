@@ -7,19 +7,16 @@ street_file = "Street.sql"  # Script to insert Street info
 neighbourhood_file = "Neighbourhood.sql"  # Script to insert Neighbourhood info
 neighbourhood_street_file = "Neighbourhood_street.sql"  # Script to insert Neighbourhood_steet info
 substance_file = "Substances.sql"  # Script to insert Substance info
-wfps_call_file_1 = "WFPS_Call_1.sql"  # Script to insert WFPS Call part 1 info
-wfps_call_file_2 = "WFPS_Call_2.sql"  # Script to insert WFPS Call part 2 info
+wfps_call_file = "WFPS_Call.sql"  # Script to insert WFPS Call part 1 info
 gps_point_file_1 = "GPS_Point_1.sql"
 gps_point_file_2 = "GPS_Point_2.sql"
-gps_point_file_3 = "GPS_Point_3.sql"
-gps_point_file_4 = "GPS_Point_4.sql"
+gps_point_park_cit = "GPS_Point_Park_Cit.sql"
 gps_point_file_5 = "GPS_Point_5.sql"
 gps_point_file_6 = "GPS_Point_6.sql"
 gps_point_file_7 = "GPS_Point_7.sql"
 paystation_file = "Paystation.sql"
 parking_violation_file = "Parking_Violation.sql"
-parking_citation_file_1 = "Parking_Citation_1.sql"
-parking_citation_file_2 = "Parking_Citation_2.sql"
+parking_citation_file = "Parking_Citation.sql"
 lane_closure_file = "Lane_Closure.sql"
 tow_file = "Tow.sql"
 bus_route_file = "Bus_Route.sql"
@@ -30,9 +27,6 @@ bus_stop_file_3 = "Bus_Stop_3.sql"
 
 ### Consider using multi threaded insert and transactions for the insert ###
 
-
-# Logs into the sql server and returns a new connection
-import pymssql
 
 def connect_to_sql_server():
     # Read database credentials from a configuration file
@@ -96,11 +90,11 @@ def populate_database(connection):
         # connection.commit()
         # print("Substances inserted successfully.")
 
-        # with open(wfps_call_file_1) as script:
+        # with open(wfps_call_file) as script:
         #     script_content = script.read()
         #     cursor.execute(script_content)
         # connection.commit()
-        # print("WFPS_Calls part 1 inserted successfully.")
+        # print("WFPS_Calls inserted successfully.")
 
         # with open(wfps_call_file_2) as script:
         #     script_content = script.read()
@@ -120,11 +114,11 @@ def populate_database(connection):
         # connection.commit()
         # print("GPS_Point part 2 inserted successfully.")
 
-        # with open(gps_point_file_3) as script:
+        # with open(gps_point_park_cit) as script:
         #     script_content = script.read()
         #     cursor.execute(script_content)
         # connection.commit()
-        # print("GPS_Point part 3 inserted successfully.")
+        # print("GPS_Point_Park_Cits inserted successfully.")
 
         # with open(gps_point_file_4) as script:
         #     script_content = script.read()
@@ -164,19 +158,11 @@ def populate_database(connection):
         # connection.commit()
         # print("Parking_Violations inserted successfully.")
 
-        # FK
-        with open(parking_citation_file_1) as script:
+        with open(parking_citation_file) as script:
             script_content = script.read()
             cursor.execute(script_content)
         connection.commit()
-        print("Parking_Citations part 1 inserted successfully.")       
-
-        # FK
-        with open(parking_citation_file_2) as script:
-            script_content = script.read()
-            cursor.execute(script_content)
-        connection.commit()
-        print("Parking_Citations part 2 inserted successfully.")                       
+        print("Parking_Citations inserted successfully.")                            
 
         # with open(lane_closure_file) as script:
         #     script_content = script.read()
