@@ -30,8 +30,7 @@
                     <div class="checkbox-column">
                         <input type="checkbox" id="filter-bus-route" name="filter-bus-route"> Bus Route<br>
                         <input type="checkbox" id="filter-tow" name="filter-tow"> Tow<br>
-                        <input type="checkbox" id="filter-substance-abuse" name="filter-substance-abuse"> Substance
-                        Abuse<br>
+                        <input type="checkbox" id="filter-substance-abuse" name="filter-substance-abuse"> Substance Abuse<br>
                         <input type="checkbox" id="filter-wfps-call" name="filter-wfps-call"> WFPS Call<br>
                     </div>
                 </div>
@@ -61,18 +60,25 @@
         <form id="query-form" action="/submit" method="post">
             <section>
                 <h3>Specify Query Parameters:</h2>
-                    <p>Number of Results: <input type="text" id="num-results" name="num-results"></p>
-                    <p>Order by:
-                        <select id="order-by" name="order-by">
-                            <option value="Unordered" selected>Unordered</option>
-                            <option value="Ascending">Ascending</option>
-                            <option value="Descending">Descending</option>
-                        </select>
-                    </p>
+                    <div class="dual-input-container">
+                        <p>Start Date: <input type="date" id="start-date" name="start-date"></p>
+                        <p>Start Time: <input type="time" id="start-time" name="start-time" step="1"></p>
+                    </div>
+                    <div class="dual-input-container">
+                        <p>End Date: <input type="date" id="end-date" name="end-date"></p>
+                        <p>End Time: <input type="time" id="end-time" name="end-time" step="1"></p>
+                    </div>
+                    <div class="dual-input-container">
+                        <p>Street Name: <input type="text" id="street-name" name="street-name"></p>
+                        <p>Street Type: <input type="text" id="street-type" name="street-type"></p>
+                    </div>
+                <p>Neighbourhood: <input type="text" id="neighborhood" name="neighborhood"></p>
+                <p>Distance (meters): <input type="text" id="num-meters" name="num-meters"></p>
             </section>
-
+        
             <button type="submit" id="execute-btn">Execute</button>
         </form>
+        
 
         <section>
             <h2>Query Results</h2>

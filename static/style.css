@@ -73,3 +73,85 @@ td {
     padding: 8px;
     text-align: left;
 }
+
+/* Flex container for grouping inputs on same row */
+.dual-input-container {
+    display: flex;
+    gap: 10px;
+}
+
+
+/* Execute query button style */
+#execute-btn {
+    padding: 10px 20px;
+    background-color: #1d1f20;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#execute-btn:hover {
+    background-color: #2980b9;
+}
+
+
+/* Container styles */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+
+/* Section styles */
+section {
+    margin-bottom: 20px;
+}
+
+/* Dropdown menu styles */
+#query-dropdown {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Input box styles */
+input[type="date"],
+input[type="time"],
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Checkbox styles */
+.checkbox-columns {
+    display: flex;
+    justify-content: space-between;
+}
+
+.checkbox-column {
+    flex: 0 0 30%;
+}
+
+/* Results container styles */
+#results-container {
+    margin-top: 20px;
+}
+
+/* Map iframe styles */
+#map-iframe {
+    width: 100%;
+    height: 500px;
+    border: 1px solid #ccc;
+}

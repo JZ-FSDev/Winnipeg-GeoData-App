@@ -165,18 +165,18 @@ def populate_database(connection):
         # print("Parking_Violations inserted successfully.")
 
         # FK
-        # with open(parking_citation_file_1) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Parking_Citations part 1 inserted successfully.")       
+        with open(parking_citation_file_1) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Parking_Citations part 1 inserted successfully.")       
 
         # FK
-        # with open(parking_citation_file_2) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Parking_Citations part 2 inserted successfully.")                       
+        with open(parking_citation_file_2) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Parking_Citations part 2 inserted successfully.")                       
 
         # with open(lane_closure_file) as script:
         #     script_content = script.read()
@@ -357,7 +357,7 @@ def street_paystation(connection):
     return execute_query(connection, query)
 
 
-
+# No Neighbourhood_Name in Neighbourhood
 # Retrieve the total count of Tow incidents for each Neighbourhood, ordered by Neighbourhood name
 def count_tow_neighbourhood(connection):
     query = '''
@@ -437,3 +437,5 @@ def count_bus_stop_street(connection):
     '''
 
     return execute_query(connection, query)
+
+

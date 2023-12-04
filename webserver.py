@@ -93,8 +93,8 @@ def main():
     db_connection = ms.connect_to_sql_server()
     # ms.populate_database(db_connection)
 
-    # app.run(debug=True, host=host, port=port, use_reloader=False)
-    app.run(debug=True, host=host, port=port)
+    app.run(debug=True, host=host, port=port, use_reloader=False)
+    # app.run(debug=True, host=host, port=port)
 
 if __name__ == '__main__':
     main()

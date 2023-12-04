@@ -2,11 +2,17 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('execute-btn').addEventListener('click', function (event) {
         event.preventDefault(); // Prevent the default form submission
 
-        // Get form data
-        const formData = new FormData(document.getElementById('query-form'));
-
         // Get the selected query option
         const selectedQuery = document.getElementById('query-dropdown').value;
+
+        // Check if a query is selected
+        if (selectedQuery === "") {
+            alert("Please select a query before executing.");
+            return; // Stop execution if no query is selected
+        }
+
+        // Get form data
+        const formData = new FormData(document.getElementById('query-form'));
 
         // Construct the API endpoint based on the selected query
         const apiEndpoint = '/api/' + selectedQuery;
@@ -71,11 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
             resultsContainer.innerHTML = '<p>Error: ' + error.message + '</p>';
         });
     });
-});
 
-
-
-document.addEventListener("DOMContentLoaded", function () {
     // Define a dictionary to map queries to descriptions
     const queryDescriptions = {
         "total_substance_neighbourhood": "List all Neighbourhoods with the total number of Substances used, ordered by the total number of substances in descending order",
@@ -108,4 +110,3 @@ document.addEventListener("DOMContentLoaded", function () {
     // Trigger the update on page load
     updateQueryDescription();
 });
-
