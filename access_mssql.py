@@ -22,6 +22,7 @@ tow_file = "Tow.sql"
 bus_route_file = "Bus_Route.sql"
 bus_stop_file = "Bus_Stop.sql"
 
+ADJACENT_MIN_RADIUS = 100  # 100 meter range for considering two entities to be adjacent to each other 
 
 ### Consider using multi threaded insert and transactions for the insert ###
 
@@ -201,7 +202,7 @@ def execute_query(connection, query, args=None):
         cursor.close() 
 
 
-# Freezes due to too many WFPS Calls
+
 # Retrieve Neighbourhood names along with the total number of houses and the count of WFPS calls for each Neighbourhood, ordered by Neighbourhood name
 def total_wfps_call_neighbourhood(connection):
     query = '''
@@ -341,13 +342,14 @@ def street_paystation(connection):
     return execute_query(connection, query)
 
 
-# Find all Tows in a given Neighbourhood
+# Find all Tows ids and their status in a given Neighbourhood
 def tows_in_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
             tow.tow_id,
             tow.latitude,
-            tow.longitude
+            tow.longitude,
+            tow.status
         FROM
             tow
             join neighbourhood_street on neighbourhood_street.street_name = tow.street_name and neighbourhood_street.street_type = tow.street_type
@@ -404,42 +406,48 @@ def latest_wfps_neighbourhood(connection):
 # No results because matching on GPS_Point
 # List all Streets with the count of Bus Stops on each street, ordered by Street Name
 def count_bus_stop_street(connection):
+    latitude_diff = mu.meters_to_latitude_difference(int(ADJACENT_MIN_RADIUS))
+    longitude_diff = mu.meters_to_longitude_difference(int(ADJACENT_MIN_RADIUS), latitude_diff)
+
     query = '''
         SELECT
-            s.Street_Name,
-            s.Street_Type,
+            gps.Street_Name,
+            gps.Street_Type,
             COUNT(bs.Row_ID) AS Bus_Stop_Count
         FROM
-            Street s
-            LEFT JOIN GPS_Point gp ON s.Street_Name = gp.Street_Name AND s.Street_Type = gp.Street_Type
-            LEFT JOIN Bus_Stop bs ON gp.Longitude = bs.Longitude AND gp.Latitude = bs.Latitude
+            gps_point gps
+        JOIN
+            bus_stop bs ON
+                bs.Latitude BETWEEN (gps.Latitude - %s) AND (gps.Latitude + %s)
+                AND bs.Longitude BETWEEN (gps.Longitude - %s) AND (gps.Longitude + %s)
+        WHERE
+            gps.Street_Name IS NOT NULL AND gps.Street_Type IS NOT NULL
         GROUP BY
-            s.Street_Name, s.Street_Type
+            gps.Street_Name, gps.Street_Type
         ORDER BY
-            s.Street_Name;
+            gps.Street_Name, gps.Street_Type;
     '''
 
-    return execute_query(connection, query)
+    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff))
 
 
-# Find all Bus Stops within a given range in meters of all known GPS Points of a given Street Name and Type
+# Find all Bus Stop ids, scheduled time, and dates within a given range in meters of all known GPS Points of a given Street Name and Type
 def bus_stops_on_street(connection, street_name, street_type, meters):
     latitude_diff = mu.meters_to_latitude_difference(int(meters))
     longitude_diff = mu.meters_to_longitude_difference(int(meters), latitude_diff)
 
     query = '''
-        SELECT bus_stop.row_ID, bus_stop.longitude, bus_stop.latitude
+        SELECT bus_stop.row_ID, bus_stop.longitude, bus_stop.latitude, bus_stop.date, bus_stop.scheduled_time
         FROM bus_stop
-        JOIN gps_point ON bus_stop.latitude = gps_point.latitude AND bus_stop.longitude = gps_point.longitude
-        WHERE gps_point.street_name = %s AND gps_point.street_type = %s
-        AND gps_point.latitude BETWEEN (bus_stop.latitude - %s) AND (bus_stop.latitude + %s)
-        AND gps_point.longitude BETWEEN (bus_stop.longitude - %s) AND (bus_stop.longitude + %s);
+        JOIN gps_point ON gps_point.latitude BETWEEN (bus_stop.latitude - %s) AND (bus_stop.latitude + %s)
+        AND gps_point.longitude BETWEEN (bus_stop.longitude - %s) AND (bus_stop.longitude + %s)
+        WHERE gps_point.street_name = %s AND gps_point.street_type = %s;
     '''
     
-    return execute_query(connection, query, (street_name, street_type, latitude_diff, latitude_diff, longitude_diff, longitude_diff))
+    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, street_name, street_type))
 
 
-# Find all Lane Closures in a given Neighbourhood
+# Find all Lane Closure ids and date ranges in a given Neighbourhood
 def lane_closures_in_neighbourhood(connection, neighbourhood):
     query = '''
         select lane_closure.lane_closure_id, lane_closure.date_from, lane_closure.date_to, lane_closure.latitude, lane_closure.longitude
@@ -452,3 +460,16 @@ def lane_closures_in_neighbourhood(connection, neighbourhood):
 
     return execute_query(connection, query, (neighbourhood))
 
+
+# Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type
+def parking_citation_and_tow(connection, street_name, street_type):
+    query = '''
+        select parking_citation.citation_id, parking_violation.fine_amount, parking_citation.violation_type, tow.tow_id, tow.status, tow.latitude, tow.longitude
+        from parking_citation
+        join tow on tow.latitude = parking_citation.latitude and tow.longitude = parking_citation.longitude
+        join parking_violation on parking_violation.violation_type = parking_citation.violation_type
+        where tow.street_name = %s and tow.street_type = %s
+        order by parking_violation.fine_amount desc
+    '''
+
+    return execute_query(connection, query, (street_name, street_type))

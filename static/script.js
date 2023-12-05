@@ -97,12 +97,13 @@ document.addEventListener('DOMContentLoaded', function () {
         "count_parking_citation_street": "List all Streets along with the count of Parking Citations for each street, ordered by the street name",
         "bus_route_avg_deviation": "Retrieve the Bus Routes along with the average deviation of each stop for each route",
         "street_paystation": "List all Streets and their respective Paystation information, ordered by Street Name",
-        "tows_in_neighbourhood": "Find all Tows in a given Neighbourhood",
+        "tows_in_neighbourhood": "Find all Tows ids and their status in a given Neighbourhood",
         "bus_stop_neighbourhood_bus_route": "List all Bus Stops with their corresponding Neighbourhood and Bus Route information, ordered by Bus Stop Number",
         "latest_wfps_neighbourhood": "Retrieve the latest WFPS call for each Neighbourhood, ordered by Neighbourhood name",
         "count_bus_stop_street": "List all Streets with the count of Bus Stops on each street, ordered by Street Name",
-        "lane_closures_in_neighbourhood": "Find all Lane Closures in a given Neighbourhood",
-        "bus_stops_on_street": "Find all Bus Stops within a given range in meters of all known GPS Points of a given Street Name and Type",
+        "lane_closures_in_neighbourhood": "Find all Lane Closure ids and date ranges in a given Neighbourhood",
+        "bus_stops_on_street": "Find all Bus Stop ids, scheduled time, and dates within a given range in meters of all known GPS Points of a given Street Name and Type",
+        "parking_citation_and_tow": "Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type",
         // Add more queries and descriptions as needed
     };
 

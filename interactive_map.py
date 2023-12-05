@@ -11,18 +11,37 @@ def update_map(df, text_column):
     # Create a scatter map using plotly.graph_objects
     fig = go.Figure()
 
-    # Add scatter mapbox trace
-    fig.add_trace(
-        go.Scattermapbox(
-            lat=df['Latitude'],
-            lon=df['Longitude'],
-            mode='markers',
-            marker=dict(
-                size=df['size'],
-            ),
-            text=f"{text_column} = " + df[text_column].astype(str),
+    if isinstance(text_column, list):
+        text = ''
+        for string in text_column:
+            text += f"{string} = " + df[string].astype(str)
+            text += '  '
+
+        # Add scatter mapbox trace wiht multiple text per marker
+        fig.add_trace(
+            go.Scattermapbox(
+                lat=df['Latitude'],
+                lon=df['Longitude'],
+                mode='markers',
+                marker=dict(
+                    size=df['size'],
+                ),
+                text=text,
+            )
         )
-    )
+    else:
+        # Add scatter mapbox trace
+        fig.add_trace(
+            go.Scattermapbox(
+                lat=df['Latitude'],
+                lon=df['Longitude'],
+                mode='markers',
+                marker=dict(
+                    size=df['size'],
+                ),
+                text=f"{text_column} = " + df[text_column].astype(str),
+            )
+        )
 
     # Set map layout
     fig.update_layout(
