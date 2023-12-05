@@ -241,22 +241,45 @@ def count_parking_citation_street(connection):
     return execute_query(connection, query)
 
 
-# Retrieve the Bus Routes along with the average deviation for each route, ordered by route number
+# Check correctness
+# Retrieve the Bus Routes along with the average deviation of each stop for each route
 def bus_route_avg_deviation(connection):
     query = '''
+        WITH dev_sum AS (
+            SELECT
+                br.Route_Number,
+                br.Route_Destination,
+                SUM(bs.Deviation) AS Deviation
+            FROM
+                Bus_Route br
+                JOIN Bus_Stop bs ON br.Route_Number = bs.Route_Number AND br.Route_Destination = bs.Route_Destination
+            GROUP BY
+                br.Route_Number, br.Route_Destination
+        ),
+        dev_count AS (
+            SELECT
+                br.Route_Number,
+                br.Route_Destination,
+                COUNT(*) AS Count
+            FROM
+                Bus_Route br
+                JOIN Bus_Stop bs ON br.Route_Number = bs.Route_Number AND br.Route_Destination = bs.Route_Destination
+            GROUP BY
+                br.Route_Number, br.Route_Destination
+        )
         SELECT
-            br.Route_Number,
-            AVG(bs.Deviation) AS Average_Deviation
+            dev_sum.Route_Number,
+            dev_sum.Route_Destination,
+            dev_sum.Deviation / dev_count.Count AS Average_Deviation
         FROM
-            Bus_Route br
-            LEFT JOIN Bus_Stop bs ON br.Route_Number = bs.Route_Number AND br.Route_Destination = bs.Route_Destination
-        GROUP BY
-            br.Route_Number
+            dev_sum
+            JOIN dev_count ON dev_sum.Route_Number = dev_count.Route_Number AND dev_sum.Route_Destination = dev_count.Route_Destination
         ORDER BY
-            br.Route_Number;
+            dev_sum.Route_Number, dev_count.Route_Number;
     '''
 
     return execute_query(connection, query)
+
 
 
 
@@ -288,7 +311,7 @@ def count_lane_closure_street(connection):
             COUNT(lc.Lane_Closure_ID) AS Closure_Count
         FROM
             Lane_Closure lc
-            LEFT JOIN Street s ON lc.Street_Name = s.Street_Name AND lc.Street_Type = s.Street_Type
+            JOIN Street s ON lc.Street_Name = s.Street_Name AND lc.Street_Type = s.Street_Type
         GROUP BY
             lc.Street_Name, lc.Street_Type
         ORDER BY
@@ -318,23 +341,22 @@ def street_paystation(connection):
     return execute_query(connection, query)
 
 
-# No Neighbourhood_Name in Neighbourhood
-# Retrieve the total count of Tow incidents for each Neighbourhood, ordered by Neighbourhood name
-def count_tow_neighbourhood(connection):
+# Find all Tows in a given Neighbourhood
+def tows_in_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
-            n.Neighbourhood_Name,
-            COUNT(t.Tow_ID) AS Tow_Count
+            tow.tow_id,
+            tow.latitude,
+            tow.longitude
         FROM
-            Neighbourhood n
-            LEFT JOIN Tow t ON n.Neighbourhood_Name = t.Neighbourhood_Name
-        GROUP BY
-            n.Neighbourhood_Name
+            tow
+            join neighbourhood_street on neighbourhood_street.street_name = tow.street_name and neighbourhood_street.street_type = tow.street_type
+            where neighbourhood_street.neighbourhood_name = %s
         ORDER BY
-            n.Neighbourhood_Name;
+            tow.tow_id;
     '''
 
-    return execute_query(connection, query)
+    return execute_query(connection, query, (neighbourhood))
 
 
 
@@ -402,8 +424,8 @@ def count_bus_stop_street(connection):
 
 # Find all Bus Stops within a given range in meters of all known GPS Points of a given Street Name and Type
 def bus_stops_on_street(connection, street_name, street_type, meters):
-    latitude_diff = mu.meters_to_latitude_difference(meters)
-    longitude_diff = mu.meters_to_longitude_difference(meters)
+    latitude_diff = mu.meters_to_latitude_difference(int(meters))
+    longitude_diff = mu.meters_to_longitude_difference(int(meters), latitude_diff)
 
     query = '''
         SELECT bus_stop.row_ID, bus_stop.longitude, bus_stop.latitude
@@ -424,7 +446,8 @@ def lane_closures_in_neighbourhood(connection, neighbourhood):
         from neighbourhood
         join neighbourhood_street on neighbourhood.neighbourhood_name = neighbourhood_street.neighbourhood_name
         join lane_closure on lane_closure.street_name = neighbourhood_street.street_name and lane_closure.street_type = neighbourhood_street.street_type
-        where neighbourhood.neighbourhood_name = %s;
+        where neighbourhood.neighbourhood_name = %s
+        order by lane_closure.lane_closure_id;
     '''
 
     return execute_query(connection, query, (neighbourhood))
