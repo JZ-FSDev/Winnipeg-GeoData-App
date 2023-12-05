@@ -195,6 +195,11 @@ for index, row in df.iterrows():
 df = df[df['Street_Name'].isin(stret)]
 df = df[df['Street_Type'].isin(type)]
 df.to_csv('Parking_Citation_Street.csv', index=False)
+
+df = pd.read_csv(csv_file_path)
+df = df.drop_duplicates()
+df = df.sample(100000)
+df.to_csv('Parking_Cit_100k.csv', index=False)
 #-------------------------------------------------------------------------
 
 #--------------------------Parking Violation------------------------
@@ -543,4 +548,25 @@ random_dates = [start_date + timedelta(days=np.random.randint(0, (end_date - sta
 data['Date'] = random_dates
 
 data.to_csv('BusData.csv', index=False)
+
+csv_file_path = 'BusData.csv'
+df = pd.read_csv(csv_file_path)
+df = df.drop_duplicates()
+print(df)
+
+
+#Select a sample of 100k rows
+data = df.sample(100000)
+
+# Define the date range
+start_date = datetime(2019, 7, 9)
+end_date = datetime(2023, 11, 23)
+
+# Generate random dates within the range
+random_dates = [start_date + timedelta(days=np.random.randint(0, (end_date - start_date).days)) for _ in range(100000)]
+
+# Assign these dates to a column in your DataFrame
+data['Date'] = random_dates
+print(data)
+data.to_csv('BusData_100k.csv', index=False)
 #-------------------------------------------------------------------------

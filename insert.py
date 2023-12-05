@@ -103,6 +103,8 @@ table_name = 'WFPS_Call'
 
 # Read the CSV file into a DataFrame
 df = pd.read_csv(csv_file_path)
+df = df.sample(100000)
+df['WFPS_Call_ID'] = [i for i in range(len(df))]
 
 # Open a file to write the SQL statements
 with open('WFPS_Call.sql', 'w') as sql_file:
@@ -186,6 +188,54 @@ with open('Paystation.sql', 'w') as sql_file:
         
         # Write the SQL statement to the file
         sql_file.write(sql)
+
+csv_file_path = 'Paystation.csv'
+
+table_name = 'Paystation'
+
+street = pd.read_csv('Street.csv')
+stret = street['Street_Name'].unique()
+type = street['Street_Type'].unique()
+tup = street[['Street_Name', 'Street_Type']].drop_duplicates()
+tup = list(tup.itertuples(index=False, name=None))
+print(stret)
+print(type)
+
+df = pd.read_csv(csv_file_path)
+print(df)
+
+# Go over all rows, and split Date and Time
+for index, row in df.iterrows():
+    str2 = row['Street_Name']
+    str1 = row['Street_Type']
+
+    if (str2,str1) not in tup: 
+        df.at[index, 'Street_Name'] = None
+
+
+df = df.drop_duplicates()
+print(df)
+
+# Open a file to write the SQL statements
+with open('Paystation.sql', 'w') as sql_file:
+    for index, row in df.iterrows():
+        # Prepare the values for the SQL statement
+        values = []
+        for value in row.values:
+            if isinstance(value, int) or isinstance(value, float) or value == 'null':
+                # Add integer as is
+                values.append(str(value))
+            else:
+                # Escape single quotes in strings and add quotes around the string
+                escaped_value = str(value).replace("'", "''")
+                values.append(f"'{escaped_value}'")
+
+        values_str = ', '.join(values)
+        columns = ', '.join(row.index)
+        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({values_str});\n"
+        
+        # Write the SQL statement to the file
+        sql_file.write(sql)
 #--------------------------------------------------------------------------------------------------------
 
 #-----------------------------------GPS_Point----------------------------------------
@@ -221,15 +271,30 @@ csv_file_path = 'Parking_Citation_Street.csv'
 
 table_name = 'GPS_Point'
 
-# # Read the CSV file into a DataFrame
+street = pd.read_csv('Street.csv')
+stret = street['Street_Name'].unique()
+type = street['Street_Type'].unique()
+tup = street[['Street_Name', 'Street_Type']].drop_duplicates()
+tup = list(tup.itertuples(index=False, name=None))
+
+# Read the CSV file into a DataFrame
 df = pd.read_csv(csv_file_path)
+df = df.drop_duplicates()
 
 df = df[['Latitude', 'Longitude', 'Neighbourhood_Name', 'Street_Name', 'Street_Type']]
+df = df.drop_duplicates(['Latitude', 'Longitude'])
 
+# Go over all rows, and split Date and Time
+for index, row in df.iterrows():
+    str2 = row['Street_Name']
+    str1 = row['Street_Type']
+
+    if (str2,str1) not in tup: 
+        df.at[index, 'Street_Name'] = "null"
+
+df = df[df['Street_Name'] != "null"]
 df = df[df['Latitude'] != 0]
 df = df[df['Longitude'] != 0]
-
-df = df.drop_duplicates(['Latitude', 'Longitude'])
 print(df)
 
 # Open a file to write the SQL statements
@@ -288,11 +353,8 @@ for index, row in df.iterrows():
 
 df = df[['Latitude', 'Longitude', 'Neighbourhood_Name', 'Street_Name', 'Street_Type']]
 
-# df = df[df['Street_Name'].isin(stret)]
-# df = df[df['Street_Type'].isin(type)]
-# df.to_csv('Parking_Citation_Street.csv', index=False)
 df = df.drop_duplicates(['Latitude', 'Longitude'])
-# df = df[['Citation_ID', 'Issue_Date', 'Time', 'Violation_Type', 'Longitude', 'Latitude']]
+
 df = df.dropna(subset=["Street_Name"])
 df = df[df['Street_Type'] != None]
 print(df)
@@ -318,7 +380,7 @@ with open('GPS_Point_5.sql', 'w') as sql_file:
         # Write the SQL statement to the file
         sql_file.write(sql)
 
-csv_file_path = 'Tow.csv'
+csv_file_path = 'Parking_Cit_100k.csv'
 
 table_name = 'GPS_Point'
 
@@ -327,18 +389,13 @@ stret = street['Street_Name'].unique()
 type = street['Street_Type'].unique()
 tup = street[['Street_Name', 'Street_Type']].drop_duplicates()
 tup = list(tup.itertuples(index=False, name=None))
-print(stret)
-print(type)
 
-Ngh = pd.read_csv('Neighbourhood.csv')
-Ngh = Ngh['Neighbourhood_Name'].unique()
-print(Ngh)
-
-# # Read the CSV file into a DataFrame
+# Read the CSV file into a DataFrame
 df = pd.read_csv(csv_file_path)
+df = df.drop_duplicates()
 
-df['Tow_ID'] = [i for i in range(len(df))]
-df['Neighbourhood_Name'] = [random.choice(Ngh) for _ in range(len(df))]
+df = df[['Latitude', 'Longitude', 'Neighbourhood_Name', 'Street_Name', 'Street_Type']]
+df = df.drop_duplicates(['Latitude', 'Longitude'])
 
 # Go over all rows, and split Date and Time
 for index, row in df.iterrows():
@@ -346,24 +403,68 @@ for index, row in df.iterrows():
     str1 = row['Street_Type']
 
     if (str2,str1) not in tup: 
-        df.at[index, 'Street_Name'] = None
+        df.at[index, 'Street_Name'] = "null"
 
-df = df[[ 'Latitude', 'Longitude', 'Neighbourhood_Name','Street_Name', 'Street_Type']]
+df = df[df['Street_Name'] != "null"]
+df = df[df['Latitude'] != 0]
+df = df[df['Longitude'] != 0]
+print(df)
 
+
+tup = df[['Latitude', 'Longitude']].drop_duplicates()
+tup = list(tup.itertuples(index=False, name=None))
+print(len(tup))
+
+
+csv_file_path = 'Tow.csv'
+
+table_name = 'GPS_Point'
+
+street = pd.read_csv('Street.csv')
+stret = street['Street_Name'].unique()
+type = street['Street_Type'].unique()
+tupp = street[['Street_Name', 'Street_Type']].drop_duplicates()
+tupp = list(tupp.itertuples(index=False, name=None))
+
+
+# # Read the CSV file into a DataFrame
+df = pd.read_csv(csv_file_path)
+
+df['Tow_ID'] = [i for i in range(len(df))]
+df['Neighbourhood_Name'] = ["null" for _ in range(len(df))]
 
 df = df.drop_duplicates(['Latitude', 'Longitude'])
 
+# Go over all rows, and split Date and Time
+for index, row in df.iterrows():
+    str2 = row['Street_Name']
+    str1 = row['Street_Type']
+    lat = row['Latitude']
+    long = row['Longitude']
+
+    if (str2,str1) not in tupp: 
+        df.at[index, 'Street_Name'] = None
+    
+    if (lat, long) in tup:
+        df.at[index, 'Latitude'] = None
+
+df = df[[ 'Latitude', 'Longitude', 'Neighbourhood_Name','Street_Name', 'Street_Type']]
+
 df = df.dropna(subset=["Street_Name"])
+df = df.dropna(subset=["Latitude"])
+df = df.dropna(subset=["Longitude"])
 df = df[df['Street_Type'] != None]
+df = df[df['Latitude'] != None]
+df = df[df['Longitude'] != None]
 print(df)
 
-# # Open a file to write the SQL statements
-with open('GPS_Point_6.sql', 'w') as sql_file:
+# Open a file to write the SQL statements
+with open('GPS_Point_Tow.sql', 'w') as sql_file:
     for index, row in df.iterrows():
         # Prepare the values for the SQL statement
         values = []
         for value in row.values:
-            if isinstance(value, int) or isinstance(value, float):
+            if isinstance(value, int) or isinstance(value, float) or value == "null":
                 # Add integer as is
                 values.append(str(value))
             else:
@@ -453,13 +554,99 @@ csv_file_path = 'Parking_Citation_Street.csv'
 
 table_name = 'Parking_Citation'
 
-# # Read the CSV file into a DataFrame
+street = pd.read_csv('Street.csv')
+stret = street['Street_Name'].unique()
+type = street['Street_Type'].unique()
+tup = street[['Street_Name', 'Street_Type']].drop_duplicates()
+tup = list(tup.itertuples(index=False, name=None))
+
+# Read the CSV file into a DataFrame
 df = pd.read_csv(csv_file_path)
+df = df.drop_duplicates()
 
 df['Citation_ID'] = [i for i in range(len(df))]
 
-df = df[['Citation_ID', 'Issue_Date', 'Time', 'Violation_Type', 'Longitude', 'Latitude']]
+df = df[['Citation_ID', 'Issue_Date', 'Time', 'Violation_Type', 'Longitude', 'Latitude', 'Street_Name', 'Street_Type']]
 df = df.drop_duplicates()
+print(df)
+
+# Go over all rows, and split Date and Time
+for index, row in df.iterrows():
+    str2 = row['Street_Name']
+    str1 = row['Street_Type']
+
+    if (str2,str1) not in tup: 
+        df.at[index, 'Street_Name'] = "null"
+
+df = df[df['Street_Name'] != "null"]
+df = df[df['Latitude'] != 0]
+df = df[df['Longitude'] != 0]
+df = df[['Citation_ID', 'Issue_Date', 'Time', 'Violation_Type', 'Longitude', 'Latitude']]
+print(df)
+
+# Open a file to write the SQL statements
+with open('Parking_Citation_1.sql', 'w') as sql_file:
+    for index, row in df.iterrows():
+        # Prepare the values for the SQL statement
+        values = []
+        for value in row.values:
+            if isinstance(value, int) or isinstance(value, float):
+                # Add integer as is
+                values.append(str(value))
+            else:
+                # Escape single quotes in strings and add quotes around the string
+                escaped_value = str(value).replace("'", "''")
+                values.append(f"'{escaped_value}'")
+
+        values_str = ', '.join(values)
+        columns = ', '.join(row.index)
+        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({values_str});\n"
+        
+        # Write the SQL statement to the file
+        sql_file.write(sql)
+
+
+ParkVio = pd.read_csv('Parking_Violation.csv')
+VioType = ParkVio['Violation_Type'].unique()
+print(VioType)
+
+
+
+csv_file_path = 'Parking_Cit_100k.csv'
+
+table_name = 'Parking_Citation'
+
+street = pd.read_csv('Street.csv')
+stret = street['Street_Name'].unique()
+type = street['Street_Type'].unique()
+tup = street[['Street_Name', 'Street_Type']].drop_duplicates()
+tup = list(tup.itertuples(index=False, name=None))
+
+# Read the CSV file into a DataFrame
+df = pd.read_csv(csv_file_path)
+df = df.drop_duplicates()
+df['Citation_ID'] = [i for i in range(len(df))]
+print(df)
+
+# df = df.drop_duplicates(['Latitude', 'Longitude'])
+df = df.drop_duplicates()
+
+for index, row in df.iterrows():
+    str2 = row['Street_Name']
+    str1 = row['Street_Type']
+    vt = row['Violation_Type']
+
+    if (str2,str1) not in tup: 
+        df.at[index, 'Street_Name'] = "null"
+    
+    if vt not in VioType:
+        df.at[index, 'Violation_Type'] = "null"
+
+df = df[df['Street_Name'] != "null"]
+df = df[df['Latitude'] != 0]
+df = df[df['Violation_Type'] != "null"]
+df = df[df['Longitude'] != 0]
+df = df[['Citation_ID', 'Issue_Date', 'Time', 'Violation_Type', 'Longitude', 'Latitude']]
 print(df)
 
 # Open a file to write the SQL statements
@@ -644,7 +831,7 @@ with open('Bus_Route.sql', 'w') as sql_file:
 # --------------------------------------------------------------------------------------------------------
 
 #---------------------------------------------Bus_Stop------------------------------------------------------
-csv_file_path = 'BusData.csv'
+csv_file_path = 'BusData_100k.csv'
 
 table_name = 'Bus_Stop'
 
@@ -653,6 +840,7 @@ df = pd.read_csv(csv_file_path)
 df = df.drop_duplicates()
 
 df = df[['Row_ID', 'Bus_Stop_Number', 'Scheduled_Time', 'Date', 'Deviation', 'Route_Number', 'Route_Destination', 'Longitude', 'Latitude']]
+df['Row_ID'] = [i for i in range(len(df))]
 
 print(df)
 
