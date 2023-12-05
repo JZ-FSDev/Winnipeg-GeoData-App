@@ -1,6 +1,6 @@
 import pymssql
 import config_reader as cr
-
+import math_utils as mu
 
 script_file = "script.sql"  # Script to generate our tables
 street_file = "Street.sql"  # Script to insert Street info
@@ -8,21 +8,19 @@ neighbourhood_file = "Neighbourhood.sql"  # Script to insert Neighbourhood info
 neighbourhood_street_file = "Neighbourhood_street.sql"  # Script to insert Neighbourhood_steet info
 substance_file = "Substances.sql"  # Script to insert Substance info
 wfps_call_file = "WFPS_Call.sql"  # Script to insert WFPS Call part 1 info
-gps_point_file_1 = "GPS_Point_1.sql"
-gps_point_file_2 = "GPS_Point_2.sql"
-gps_point_park_cit = "GPS_Point_Park_Cit.sql"
-gps_point_file_5 = "GPS_Point_5.sql"
-gps_point_file_6 = "GPS_Point_6.sql"
-gps_point_file_7 = "GPS_Point_7.sql"
-paystation_file = "Paystation.sql"
+gps_point_file_address = "GPS_Point_Addresses.sql"
+gps_point_file_bus_stop = "GPS_Point_Bus_Stop.sql"
+gps_point_file_lane_closure = "GPS_Point_Lane_Closure.sql"
+gps_point_park_citation = "GPS_Point_Park_Citation.sql"
+gps_point_file_paystation = "GPS_Point_Paystation.sql"
+gps_point_tow = "GPS_Point_Tow.sql"
 parking_violation_file = "Parking_Violation.sql"
+paystation_file = "Paystation.sql"
 parking_citation_file = "Parking_Citation.sql"
 lane_closure_file = "Lane_Closure.sql"
 tow_file = "Tow.sql"
 bus_route_file = "Bus_Route.sql"
-bus_stop_file_1 = "Bus_Stop_1.sql"
-bus_stop_file_2 = "Bus_Stop_2.sql"
-bus_stop_file_3 = "Bus_Stop_3.sql"
+bus_stop_file = "Bus_Stop.sql"
 
 
 ### Consider using multi threaded insert and transactions for the insert ###
@@ -96,56 +94,42 @@ def populate_database(connection):
         # connection.commit()
         # print("WFPS_Calls inserted successfully.")
 
-        # with open(wfps_call_file_2) as script:
+        # with open(gps_point_file_address) as script:
         #     script_content = script.read()
         #     cursor.execute(script_content)
         # connection.commit()
-        # print("WFPS_Calls part 2 inserted successfully.")
+        # print("GPS_Point addresses inserted successfully.")
 
-        # with open(gps_point_file_1) as script:
+        # with open(gps_point_file_bus_stop) as script:
         #     script_content = script.read()
         #     cursor.execute(script_content)
         # connection.commit()
-        # print("GPS_Point part 1 inserted successfully.")
+        # print("GPS_Point bus stops inserted successfully.")
 
-        # with open(gps_point_file_2) as script:
+        # with open(gps_point_park_citation) as script:
         #     script_content = script.read()
         #     cursor.execute(script_content)
         # connection.commit()
-        # print("GPS_Point part 2 inserted successfully.")
+        # print("GPS_Point parking citations inserted successfully.")
 
-        # with open(gps_point_park_cit) as script:
+        # with open(gps_point_file_paystation) as script:
         #     script_content = script.read()
         #     cursor.execute(script_content)
         # connection.commit()
-        # print("GPS_Point_Park_Cits inserted successfully.")
+        # print("GPS_Point paystations inserted successfully.")
 
-        # with open(gps_point_file_4) as script:
+        with open(gps_point_file_lane_closure) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("GPS_Point lane closures inserted successfully.")
+
+        # with open(gps_point_tow) as script:
         #     script_content = script.read()
         #     cursor.execute(script_content)
         # connection.commit()
-        # print("GPS_Point part 4 inserted successfully.")
+        # print("GPS_Point tows inserted successfully.")        
 
-        # with open(gps_point_file_5) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("GPS_Point part 5 inserted successfully.")
-
-        # FK
-        # with open(gps_point_file_6) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("GPS_Point part 6 inserted successfully.")     
-
-        # with open(gps_point_file_7) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("GPS_Point part 7 inserted successfully.")             
-
-        # # Time Limit is String
         # with open(paystation_file) as script:
         #     script_content = script.read()
         #     cursor.execute(script_content)
@@ -158,11 +142,11 @@ def populate_database(connection):
         # connection.commit()
         # print("Parking_Violations inserted successfully.")
 
-        with open(parking_citation_file) as script:
-            script_content = script.read()
-            cursor.execute(script_content)
-        connection.commit()
-        print("Parking_Citations inserted successfully.")                            
+        # with open(parking_citation_file) as script:
+        #     script_content = script.read()
+        #     cursor.execute(script_content)
+        # connection.commit()
+        # print("Parking_Citations inserted successfully.")                            
 
         # with open(lane_closure_file) as script:
         #     script_content = script.read()
@@ -170,7 +154,6 @@ def populate_database(connection):
         # connection.commit()
         # print("Lane_Closures inserted successfully.")        
 
-        # FK ERROR
         # with open(tow_file) as script:
         #     script_content = script.read()
         #     cursor.execute(script_content)
@@ -183,23 +166,11 @@ def populate_database(connection):
         # connection.commit()
         # print("Bus_Routes inserted successfully.")  
 
-        # with open(bus_stop_file_1) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Bus_Stops part 1 inserted successfully.")  
-                     
-        # with open(bus_stop_file_2) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Bus_Stops part 2 inserted successfully.")  
-
-        # with open(bus_stop_file_3) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Bus_Stops part 3 inserted successfully.")  
+        with open(bus_stop_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Bus_Stops inserted successfully.")  
 
         print("All data inserted successfully")
     except FileNotFoundError:
@@ -209,12 +180,16 @@ def populate_database(connection):
 
 
 # Executes the given query on via the given connection and returns the result set
-def execute_query(connection, query):
+def execute_query(connection, query, args=None):
     try:
         cursor = connection.cursor()
-        cursor.execute(query)
-        rows = cursor.fetchall()
+        
+        if args:
+            cursor.execute(query, args)
+        else:
+            cursor.execute(query)
 
+        rows = cursor.fetchall()
         return rows
 
     except pymssql.Error as e:
@@ -424,4 +399,33 @@ def count_bus_stop_street(connection):
 
     return execute_query(connection, query)
 
+
+# Find all Bus Stops within a given range in meters of all known GPS Points of a given Street Name and Type
+def bus_stops_on_street(connection, street_name, street_type, meters):
+    latitude_diff = mu.meters_to_latitude_difference(meters)
+    longitude_diff = mu.meters_to_longitude_difference(meters)
+
+    query = '''
+        SELECT bus_stop.row_ID, bus_stop.longitude, bus_stop.latitude
+        FROM bus_stop
+        JOIN gps_point ON bus_stop.latitude = gps_point.latitude AND bus_stop.longitude = gps_point.longitude
+        WHERE gps_point.street_name = %s AND gps_point.street_type = %s
+        AND gps_point.latitude BETWEEN (bus_stop.latitude - %s) AND (bus_stop.latitude + %s)
+        AND gps_point.longitude BETWEEN (bus_stop.longitude - %s) AND (bus_stop.longitude + %s);
+    '''
+    
+    return execute_query(connection, query, (street_name, street_type, latitude_diff, latitude_diff, longitude_diff, longitude_diff))
+
+
+# Find all Lane Closures in a given Neighbourhood
+def lane_closures_in_neighbourhood(connection, neighbourhood):
+    query = '''
+        select lane_closure.lane_closure_id, lane_closure.date_from, lane_closure.date_to, lane_closure.latitude, lane_closure.longitude
+        from neighbourhood
+        join neighbourhood_street on neighbourhood.neighbourhood_name = neighbourhood_street.neighbourhood_name
+        join lane_closure on lane_closure.street_name = neighbourhood_street.street_name and lane_closure.street_type = neighbourhood_street.street_type
+        where neighbourhood.neighbourhood_name = %s;
+    '''
+
+    return execute_query(connection, query, (neighbourhood))
 

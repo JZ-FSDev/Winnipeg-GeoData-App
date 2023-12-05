@@ -20,62 +20,65 @@ document.addEventListener('DOMContentLoaded', function () {
         // Make a POST request to the server
         fetch(apiEndpoint, {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: formData,
         })
-        .then(response => response.json())
-        .then(data => {
-            // Handle the response data
-            console.log('API Response:', data);
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response data
+                console.log('API Response:', data);
 
-            // Update the results container with the response
-            const resultsContainer = document.getElementById('results-container');
-            
-            // Check if there are results
-            if (data.result && data.result.length > 0) {
-                // Build the table dynamically
-                const table = document.createElement('table');
-                const thead = document.createElement('thead');
-                const tbody = document.createElement('tbody');
+                // Update the results container with the response
+                const resultsContainer = document.getElementById('results-container');
 
-                // Create header row
-                const headerRow = document.createElement('tr');
-                for (const key in data.result[0]) {
-                    const th = document.createElement('th');
-                    th.textContent = key;
-                    headerRow.appendChild(th);
-                }
-                thead.appendChild(headerRow);
-                table.appendChild(thead);
+                // Check if there are results
+                if (data.result && data.result.length > 0) {
+                    // Build the table dynamically
+                    const table = document.createElement('table');
+                    const thead = document.createElement('thead');
+                    const tbody = document.createElement('tbody');
 
-                // Create body rows
-                data.result.forEach(item => {
-                    const tr = document.createElement('tr');
-                    for (const key in item) {
-                        const td = document.createElement('td');
-                        td.textContent = item[key];
-                        tr.appendChild(td);
+                    // Create header row
+                    const headerRow = document.createElement('tr');
+                    for (const key in data.result[0]) {
+                        const th = document.createElement('th');
+                        th.textContent = key;
+                        headerRow.appendChild(th);
                     }
-                    tbody.appendChild(tr);
-                });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
 
-                table.appendChild(tbody);
+                    // Create body rows
+                    data.result.forEach(item => {
+                        const tr = document.createElement('tr');
+                        for (const key in item) {
+                            const td = document.createElement('td');
+                            td.textContent = item[key];
+                            tr.appendChild(td);
+                        }
+                        tbody.appendChild(tr);
+                    });
 
-                // Clear previous results and append the new table
-                resultsContainer.innerHTML = '';
-                resultsContainer.appendChild(table);
-            } else {
-                // If no results, display a "No Results" message
-                resultsContainer.innerHTML = '<p>No Results</p>';
-            }
-        })
-        .catch(error => {
-            // Handle errors
-            console.error('API Error:', error);
+                    table.appendChild(tbody);
 
-            // Update the results container with the error message
-            const resultsContainer = document.getElementById('results-container');
-            resultsContainer.innerHTML = '<p>Error: ' + error.message + '</p>';
-        });
+                    // Clear previous results and append the new table
+                    resultsContainer.innerHTML = '';
+                    resultsContainer.appendChild(table);
+                } else {
+                    // If no results, display a "No Results" message
+                    resultsContainer.innerHTML = '<p>No Results</p>';
+                }
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('API Error:', error);
+
+                // Update the results container with the error message
+                const resultsContainer = document.getElementById('results-container');
+                resultsContainer.innerHTML = '<p>Error: ' + error.message + '</p>';
+            });
     });
 
     // Define a dictionary to map queries to descriptions
@@ -90,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "bus_stop_neighbourhood_bus_route": "List all Bus Stops with their corresponding Neighbourhood and Bus Route information, ordered by Bus Stop Number",
         "latest_wfps_neighbourhood": "Retrieve the latest WFPS call for each Neighbourhood, ordered by Neighbourhood name",
         "count_bus_stop_street": "List all Streets with the count of Bus Stops on each street, ordered by Street Name",
-
+        "lane_closures_in_neighbourhood": "Find all Lane Closures in a given Neighbourhood",
         // Add more queries and descriptions as needed
     };
 
@@ -106,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Attach the update function to the change event of the dropdown
     document.getElementById("query-dropdown").addEventListener("change", updateQueryDescription);
-    
+
     // Trigger the update on page load
     updateQueryDescription();
 });

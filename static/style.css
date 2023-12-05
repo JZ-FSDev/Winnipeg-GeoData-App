@@ -99,10 +99,13 @@ section {
 }
 
 /* Dropdown menu styles */
+#street-name,
+#street-type,
+#neighbourhood,
 #query-dropdown,
 input[type="date"],
 input[type="time"],
-input[type="text"] {
+input[type="number"] {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -112,8 +115,6 @@ input[type="text"] {
 }
 
 /* Margin for input boxes */
-input[type="date"],
-input[type="time"],
-input[type="text"] {
+input[type="number"] {
     margin-bottom: 10px;
 }

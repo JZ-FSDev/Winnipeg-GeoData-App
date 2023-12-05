@@ -1,7 +1,6 @@
-import math_utils as mu
 import interactive_map as im
 import access_mssql as ms
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import config_reader as cr
 
 
@@ -76,6 +75,16 @@ def latest_wfps_neighbourhood():
 def count_bus_stop_street():
     result = ms.count_bus_stop_street(db_connection)
     json_result = [{'street_name': item[0], 'street_type': item[1], 'bus_count': item[2]} for item in result]
+    return jsonify({'result': json_result})
+
+@app.route('/api/lane_closures_in_neighbourhood', methods=['POST'])
+def lane_closures_in_neighbourhood():
+    data = request.get_json()
+    print(data)
+    neighbourhood = data.get('neighbourhood')
+    
+    result = ms.lane_closures_in_neighbourhood(db_connection, neighbourhood)
+    json_result = [{'lane_closure_id': item[0], 'date_from': item[1], 'date_to': item[2], 'date_from': item[3]} for item in result]
     return jsonify({'result': json_result})
 
 # Route for the index.html page
