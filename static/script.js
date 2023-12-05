@@ -11,8 +11,21 @@ document.addEventListener('DOMContentLoaded', function () {
             return; // Stop execution if no query is selected
         }
 
+        // Display "Loading..." message
+        const resultsContainer = document.getElementById('results-container');
+        resultsContainer.innerHTML = '<p>Loading...</p>';
+
         // Get form data
-        const formData = new FormData(document.getElementById('query-form'));
+        const formData = {
+            start_date: document.getElementById('start-date').value,
+            start_time: document.getElementById('start-time').value,
+            end_date: document.getElementById('end-date').value,
+            end_time: document.getElementById('end-time').value,
+            street_name: document.getElementById('street-name').value,
+            street_type: document.getElementById('street-type').value,
+            neighbourhood: document.getElementById('neighbourhood').value,
+            num_meters: document.getElementById('num-meters').value,
+        };
 
         // Construct the API endpoint based on the selected query
         const apiEndpoint = '/api/' + selectedQuery;
@@ -23,17 +36,11 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: formData,
+            body: JSON.stringify(formData),
         })
             .then(response => response.json())
             .then(data => {
-                // Handle the response data
-                console.log('API Response:', data);
-
                 // Update the results container with the response
-                const resultsContainer = document.getElementById('results-container');
-
-                // Check if there are results
                 if (data.result && data.result.length > 0) {
                     // Build the table dynamically
                     const table = document.createElement('table');
@@ -67,8 +74,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     resultsContainer.innerHTML = '';
                     resultsContainer.appendChild(table);
                 } else {
-                    // If no results, display a "No Results" message
-                    resultsContainer.innerHTML = '<p>No Results</p>';
+                    // If no results, display a "Query had no results" message
+                    resultsContainer.innerHTML = '<p>Query had no results</p>';
                 }
             })
             .catch(error => {
@@ -76,9 +83,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('API Error:', error);
 
                 // Update the results container with the error message
-                const resultsContainer = document.getElementById('results-container');
                 resultsContainer.innerHTML = '<p>Error: ' + error.message + '</p>';
-            });
+            })
     });
 
     // Define a dictionary to map queries to descriptions
@@ -113,3 +119,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Trigger the update on page load
     updateQueryDescription();
 });
+
+
+function updateMap() {
+    var iframe = document.getElementById("map-iframe");
+    iframe.src = iframe.src; // This will trigger a reload of the iframe content.
+}

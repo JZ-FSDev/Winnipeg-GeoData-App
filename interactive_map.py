@@ -1,29 +1,88 @@
 import pandas as pd
-import plotly.express as px
-import numpy as np
-import plotly.offline as offline
+import plotly.graph_objects as go
+import plotly.io as pio
 
+def update_map(df, text_column):
+    # Create a scatter plot on a map with markers
 
-# Updates the interactive map displayed on the website
-def update_map():
-    # Set fixed coordinates for Winnipeg
-    winnipeg_latitude = 49.8951
-    winnipeg_longitude = -97.1384
+    # Define the size of the markers
+    df['size'] = 10
 
-    # Creating a DataFrame with fixed coordinates for Winnipeg and random animal names
-    data = {
-        'Latitude': np.random.uniform(low=winnipeg_latitude - 0.1, high=winnipeg_latitude + 0.1, size=10),
-        'Longitude': np.random.uniform(low=winnipeg_longitude - 0.1, high=winnipeg_longitude + 0.1, size=10),
-        'Animal': np.random.choice(['Lion', 'Elephant', 'Giraffe', 'Zebra', 'Kangaroo'], size=10)
-    }
+    # Create a scatter map using plotly.graph_objects
+    fig = go.Figure()
 
-    df = pd.DataFrame(data)
+    # Add scatter mapbox trace
+    fig.add_trace(
+        go.Scattermapbox(
+            lat=df['Latitude'],
+            lon=df['Longitude'],
+            mode='markers',
+            marker=dict(
+                size=df['size'],
+            ),
+            text=f"{text_column} = " + df[text_column].astype(str),
+        )
+    )
 
-    # Create a scatter plot with a constant size
-    fig = px.scatter_mapbox(df, lat='Latitude', lon='Longitude', text='Animal',
-                            center=dict(lat=df.Latitude.mean(), lon=df.Longitude.mean()),
-                            zoom=10, mapbox_style='open-street-map', height=550,
-                            size_max=15)  # Set the maximum size of the dots
+    # Set map layout
+    fig.update_layout(
+        mapbox=dict(
+            style='open-street-map',
+            center=dict(
+                lat=df['Latitude'].mean(),
+                lon=df['Longitude'].mean(),
+            ),
+            zoom=10,
+        ),
+        height=550,
+    )
 
     # Save the interactive map as an HTML file
-    offline.plot(fig, filename='templates/interactive_map.html', auto_open=False)
+    pio.write_html(fig, file='static/interactive_map.html', auto_open=False)
+
+
+def update_empty_map():
+    # Create an empty map centered at the middle of Winnipeg
+
+    # Winnipeg coordinates
+    winnipeg_lat = 49.8951
+    winnipeg_lon = -97.1384
+
+    # Create a DataFrame with a single row for Winnipeg coordinates
+    df = pd.DataFrame({
+        'Latitude': [winnipeg_lat],
+        'Longitude': [winnipeg_lon]
+    })
+
+    # Create a scatter map using plotly.graph_objects
+    fig = go.Figure()
+
+
+    # Add scatter mapbox trace
+    fig.add_trace(
+        go.Scattermapbox(
+            lat=df['Latitude'],
+            lon=df['Longitude'],
+            mode='markers',
+            marker=dict(
+                opacity=0  # Set opacity to 0 for an invisible data point
+            ),
+            hoverinfo='skip'  # Disable hoverinfo for this trace
+        )
+    )
+
+    # Set map layout
+    fig.update_layout(
+        mapbox=dict(
+            style='open-street-map',
+            center=dict(
+                lat=df['Latitude'].mean(),
+                lon=df['Longitude'].mean(),
+            ),
+            zoom=10,
+        ),
+        height=550,
+    )
+
+    # Save the interactive map as an HTML file
+    pio.write_html(fig, file='static/interactive_map.html', auto_open=False)

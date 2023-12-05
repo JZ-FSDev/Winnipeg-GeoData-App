@@ -58,65 +58,65 @@ def populate_database(connection):
     try:
         cursor = connection.cursor()
 
-        # with open(script_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Script executed successfully.")
+        with open(script_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Script executed successfully.")
 
-        # with open(street_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Streets inserted successfully.")
+        with open(street_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Streets inserted successfully.")
 
-        # with open(neighbourhood_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Neighbourhoods inserted successfully.")
+        with open(neighbourhood_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Neighbourhoods inserted successfully.")
 
-        # with open(neighbourhood_street_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Neighbourhood_Streets inserted successfully.")
+        with open(neighbourhood_street_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Neighbourhood_Streets inserted successfully.")
 
-        # with open(substance_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Substances inserted successfully.")
+        with open(substance_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Substances inserted successfully.")
 
-        # with open(wfps_call_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("WFPS_Calls inserted successfully.")
+        with open(wfps_call_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("WFPS_Calls inserted successfully.")
 
-        # with open(gps_point_file_address) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("GPS_Point addresses inserted successfully.")
+        with open(gps_point_file_address) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("GPS_Point addresses inserted successfully.")
 
-        # with open(gps_point_file_bus_stop) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("GPS_Point bus stops inserted successfully.")
+        with open(gps_point_file_bus_stop) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("GPS_Point bus stops inserted successfully.")
 
-        # with open(gps_point_park_citation) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("GPS_Point parking citations inserted successfully.")
+        with open(gps_point_park_citation) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("GPS_Point parking citations inserted successfully.")
 
-        # with open(gps_point_file_paystation) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("GPS_Point paystations inserted successfully.")
+        with open(gps_point_file_paystation) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("GPS_Point paystations inserted successfully.")
 
         with open(gps_point_file_lane_closure) as script:
             script_content = script.read()
@@ -124,47 +124,47 @@ def populate_database(connection):
         connection.commit()
         print("GPS_Point lane closures inserted successfully.")
 
-        # with open(gps_point_tow) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("GPS_Point tows inserted successfully.")        
+        with open(gps_point_tow) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("GPS_Point tows inserted successfully.")        
 
-        # with open(paystation_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Paystations inserted successfully.")
+        with open(paystation_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Paystations inserted successfully.")
 
-        # with open(parking_violation_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Parking_Violations inserted successfully.")
+        with open(parking_violation_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Parking_Violations inserted successfully.")
 
-        # with open(parking_citation_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Parking_Citations inserted successfully.")                            
+        with open(parking_citation_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Parking_Citations inserted successfully.")                            
 
-        # with open(lane_closure_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Lane_Closures inserted successfully.")        
+        with open(lane_closure_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Lane_Closures inserted successfully.")        
 
-        # with open(tow_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Tows inserted successfully.")  
+        with open(tow_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Tows inserted successfully.")  
 
-        # with open(bus_route_file) as script:
-        #     script_content = script.read()
-        #     cursor.execute(script_content)
-        # connection.commit()
-        # print("Bus_Routes inserted successfully.")  
+        with open(bus_route_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Bus_Routes inserted successfully.")  
 
         with open(bus_stop_file) as script:
             script_content = script.read()

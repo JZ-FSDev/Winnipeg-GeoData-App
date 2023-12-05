@@ -2,6 +2,7 @@ import interactive_map as im
 import access_mssql as ms
 from flask import Flask, jsonify, render_template, request
 import config_reader as cr
+import pandas as pd
 
 
 db_connection = None  # A connection to our db  (May choose to make a new connection each time)
@@ -80,16 +81,24 @@ def count_bus_stop_street():
 @app.route('/api/lane_closures_in_neighbourhood', methods=['POST'])
 def lane_closures_in_neighbourhood():
     data = request.get_json()
-    print(data)
     neighbourhood = data.get('neighbourhood')
     
     result = ms.lane_closures_in_neighbourhood(db_connection, neighbourhood)
-    json_result = [{'lane_closure_id': item[0], 'date_from': item[1], 'date_to': item[2], 'date_from': item[3]} for item in result]
-    return jsonify({'result': json_result})
+
+    if len(result) > 0:
+        columns = ['lane_closure_id', 'date_from', 'date_to', 'Latitude', 'Longitude']
+        df = pd.DataFrame(result, columns=columns)
+        im.update_map(df, 'lane_closure_id')
+
+        json_result = [{'lane_closure_id': item[0], 'date_from': item[1], 'date_to': item[2]} for item in result]
+        return jsonify({'result': json_result})
+    else:
+        return jsonify({'result': []})
 
 # Route for the index.html page
 @app.route('/')
 def index():
+    im.update_empty_map()  # Clear map
     return render_template('index.html')
 
 # Add more API routes as needed
@@ -100,7 +109,7 @@ def main():
 
     host, port = cr.get_host_port()
     db_connection = ms.connect_to_sql_server()
-    ms.populate_database(db_connection)
+    # ms.populate_database(db_connection)
 
     app.run(debug=True, host=host, port=port, use_reloader=False)
     # app.run(debug=True, host=host, port=port)
