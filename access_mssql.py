@@ -204,7 +204,7 @@ def execute_query(connection, query, args=None):
 
 
 
-# Retrieve Neighbourhood names along with the total number of houses and the count of WFPS calls for each Neighbourhood, ordered by Neighbourhood name
+# Retrieve Neighbourhood names along with the total number of houses and the count of WFPS calls for each Neighbourhood, ordered by neighbourhood name
 def total_wfps_call_neighbourhood(connection):
     query = '''
         SELECT
@@ -223,7 +223,7 @@ def total_wfps_call_neighbourhood(connection):
     return execute_query(connection, query)
 
 
-# List all Streets along with the count of Parking Citations for each street, ordered by the street name
+# List all Streets along with the count of Parking Citations for each street, ordered by street name and type
 def count_parking_citation_street(connection):
     query = '''
         SELECT
@@ -237,7 +237,7 @@ def count_parking_citation_street(connection):
         GROUP BY
             s.Street_Name, s.Street_Type
         ORDER BY
-            s.Street_Name;
+            s.Street_Name, s.Street_Type;
     '''
 
     return execute_query(connection, query)
@@ -324,7 +324,7 @@ def count_lane_closure_street(connection):
 
 
 
-# List all Streets and their respective Paystation information, ordered by Street Name
+# List all Streets and their respective Paystation id, time_limit, and space, ordered by Street name and type. Displays the Paystations in the interactive map
 def street_paystation(connection):
     query = '''
         SELECT
@@ -345,7 +345,7 @@ def street_paystation(connection):
     return execute_query(connection, query)
 
 
-# Find all Tows ids and their status in a given Neighbourhood
+# Find all Tows ids and their status in a given Neighbourhood. Displays the Tows in the interactive map
 def tows_in_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
@@ -364,19 +364,18 @@ def tows_in_neighbourhood(connection, neighbourhood):
     return execute_query(connection, query, (neighbourhood))
 
 
-# MYSQL expects date time as types in the schema to do date and time queries.  Trying to figure this out...
-# List all unique Bus Route numbers, destinations, and names between a given date and time range and neighbourhood
+# List all unique Bus Route numbers, destinations, and names between a given date and time range that run through a given neighbourhood
 def bus_route_in_neighbourhood_between_date_time(connection, start_date, start_time, end_date, end_time, neighbourhood):
     latitude_diff = mu.meters_to_latitude_difference(int(ADJACENT_MIN_RADIUS))
     longitude_diff = mu.meters_to_longitude_difference(int(ADJACENT_MIN_RADIUS), latitude_diff)
+
+    print(start_time, end_time, start_date, end_date, neighbourhood)
 
     query = '''
         SELECT DISTINCT
             bus_route.route_number,
             bus_route.route_destination,
-            bus_route.route_name,
-            bus_stop.latitude,
-            bus_stop.longitude
+            bus_route.route_name
         FROM
             bus_route
         JOIN
@@ -385,18 +384,14 @@ def bus_route_in_neighbourhood_between_date_time(connection, start_date, start_t
             gps_point ON gps_point.latitude BETWEEN (bus_stop.latitude - %s) AND (bus_stop.latitude + %s)
             AND gps_point.longitude BETWEEN (bus_stop.longitude - %s) AND (bus_stop.longitude + %s)
         WHERE
-            bus_stop.date + CAST(' ' + bus_stop.scheduled_time AS DATETIME) BETWEEN %s AND %s;
+            bus_stop.scheduled_time between %s and %s and bus_stop.date between %s and %s and %s = gps_point.neighbourhood_name;
     '''
 
-    # Concatenate date and time in Python before passing to the execute_query function
-    start_datetime = f"{start_date} {start_time}"
-    end_datetime = f"{end_date} {end_time}"
-
-    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, start_datetime, end_datetime))
+    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, start_time, end_time, start_date, end_date, neighbourhood))
 
 
 
-# Retrieve the WFPS Call id, date, call time, and reason for a given Neighbourhood. 
+# Retrieve the WFPS Call id, date, call time, and reason for a given Neighbourhood
 def wfps_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
@@ -415,7 +410,7 @@ def wfps_neighbourhood(connection, neighbourhood):
     return execute_query(connection, query, neighbourhood)
 
 
-# List all Streets with the count of Bus Stops on each street, ordered by Street Name
+# List all Streets with the count of Bus Stops on each street, ordered by Street name and type
 def count_bus_stop_street(connection):
     latitude_diff = mu.meters_to_latitude_difference(int(ADJACENT_MIN_RADIUS))
     longitude_diff = mu.meters_to_longitude_difference(int(ADJACENT_MIN_RADIUS), latitude_diff)
@@ -442,7 +437,7 @@ def count_bus_stop_street(connection):
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff))
 
 
-# Find all Bus Stop ids, scheduled time, and dates and Bus Route name within a given range in meters of all known GPS Points of a given Street Name and Type
+# Find all Bus Stop ids, scheduled time, and dates and Bus Route name within a given range in meters of all known GPS Points of a given Street name and type. Displays the Bus Stops on the interactive map
 def bus_stops_on_street(connection, street_name, street_type, meters):
     latitude_diff = mu.meters_to_latitude_difference(int(meters))
     longitude_diff = mu.meters_to_longitude_difference(int(meters), latitude_diff)
@@ -459,7 +454,7 @@ def bus_stops_on_street(connection, street_name, street_type, meters):
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, street_name, street_type))
 
 
-# Find all Lane Closure ids and date ranges in a given Neighbourhood
+# Find all Lane Closure ids and date ranges in a given Neighbourhood. Displays the center locations of the Lane Closures on the interactive map
 def lane_closures_in_neighbourhood(connection, neighbourhood):
     query = '''
         select lane_closure.lane_closure_id, lane_closure.date_from, lane_closure.date_to, lane_closure.latitude, lane_closure.longitude
@@ -473,7 +468,7 @@ def lane_closures_in_neighbourhood(connection, neighbourhood):
     return execute_query(connection, query, (neighbourhood))
 
 
-# Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type
+# Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type. Displays the shared locations of the Tows and Parking Citations
 def parking_citation_and_tow(connection, street_name, street_type):
     query = '''
         select parking_citation.citation_id, parking_violation.fine_amount, parking_citation.violation_type, tow.tow_id, tow.status, tow.latitude, tow.longitude

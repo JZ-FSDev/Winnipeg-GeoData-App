@@ -108,21 +108,17 @@ def tows_in_neighbourhood():
 
 @app.route('/api/bus_route_in_neighbourhood_between_date_time', methods=['POST'])
 def bus_route_in_neighbourhood_between_date_time():
-
+    im.update_empty_map()  # Clear map
     data = request.get_json()
-    start_date = data.get('start-date')
-    start_time = data.get('start-time')
-    end_date = data.get('end-date')
-    end_time = data.get('end-time')
+    start_date = data.get('start_date')
+    start_time = data.get('start_time')
+    end_date = data.get('end_date')
+    end_time = data.get('end_time')
     neighbourhood = data.get('neighbourhood')
 
     result = ms.bus_route_in_neighbourhood_between_date_time(db_connection, start_date, start_time, end_date, end_time, neighbourhood)
 
     if len(result) > 0:
-        columns = ['route_number', 'route_destination', 'route_name', 'Latitude', 'Longitude']
-        df = pd.DataFrame(result, columns=columns)
-        im.update_map(df, ['route_number', 'route_destination'])
-
         json_result = [{'route_number': item[0], 'route_destination': item[1], 'route_name': item[2]} for item in result]
         return jsonify({'result': json_result})
     else:
