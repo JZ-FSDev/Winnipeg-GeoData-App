@@ -1,6 +1,7 @@
 import pymssql
 import config_reader as cr
 import math_utils as mu
+from datetime import datetime
 
 script_file = "script.sql"  # Script to generate our tables
 street_file = "Street.sql"  # Script to insert Street info
@@ -22,7 +23,7 @@ tow_file = "Tow.sql"
 bus_route_file = "Bus_Route.sql"
 bus_stop_file = "Bus_Stop.sql"
 
-ADJACENT_MIN_RADIUS = 100  # 100 meter range for considering two entities to be adjacent to each other 
+ADJACENT_MIN_RADIUS = 100  # 100 meter range for considering two entities to be adjacent to each other
 
 ### Consider using multi threaded insert and transactions for the insert ###
 
@@ -331,10 +332,12 @@ def street_paystation(connection):
             s.Street_Type,
             p.Paystation_ID,
             p.Time_Limit,
-            p.Space
+            p.Space,
+            p.latitude,
+            p.longitude
         FROM
             Street s
-            LEFT JOIN Paystation p ON s.Street_Name = p.Street_Name AND s.Street_Type = p.Street_Type
+            JOIN Paystation p ON s.Street_Name = p.Street_Name AND s.Street_Type = p.Street_Type
         ORDER BY
             s.Street_Name, s.Street_Type;
     '''
@@ -361,49 +364,57 @@ def tows_in_neighbourhood(connection, neighbourhood):
     return execute_query(connection, query, (neighbourhood))
 
 
+# MYSQL expects date time as types in the schema to do date and time queries.  Trying to figure this out...
+# List all unique Bus Route numbers, destinations, and names between a given date and time range and neighbourhood
+def bus_route_in_neighbourhood_between_date_time(connection, start_date, start_time, end_date, end_time, neighbourhood):
+    latitude_diff = mu.meters_to_latitude_difference(int(ADJACENT_MIN_RADIUS))
+    longitude_diff = mu.meters_to_longitude_difference(int(ADJACENT_MIN_RADIUS), latitude_diff)
 
-# List all Bus Stops with their corresponding Neighbourhood and Bus Route information, ordered by Bus Stop Number
-def bus_stop_neighbourhood_bus_route(connection):
     query = '''
-        SELECT
-            bs.Bus_Stop_Number,
-            bs.Longitude,
-            bs.Latitude,
-            n.Neighbourhood_Name,
-            br.Route_Number,
-            br.Route_Destination
+        SELECT DISTINCT
+            bus_route.route_number,
+            bus_route.route_destination,
+            bus_route.route_name,
+            bus_stop.latitude,
+            bus_stop.longitude
         FROM
-            Bus_Stop bs
-            LEFT JOIN GPS_Point gp ON bs.Longitude = gp.Longitude AND bs.Latitude = gp.Latitude
-            LEFT JOIN Neighbourhood n ON gp.Neighbourhood_Name = n.Neighbourhood_Name
-            LEFT JOIN Bus_Route br ON bs.Route_Number = br.Route_Number AND bs.Route_Destination = br.Route_Destination
-        ORDER BY
-            bs.Bus_Stop_Number;
+            bus_route
+        JOIN
+            bus_stop ON bus_route.route_number = bus_stop.route_number AND bus_route.route_destination = bus_stop.route_destination
+        JOIN
+            gps_point ON gps_point.latitude BETWEEN (bus_stop.latitude - %s) AND (bus_stop.latitude + %s)
+            AND gps_point.longitude BETWEEN (bus_stop.longitude - %s) AND (bus_stop.longitude + %s)
+        WHERE
+            bus_stop.date + CAST(' ' + bus_stop.scheduled_time AS DATETIME) BETWEEN %s AND %s;
     '''
 
-    return execute_query(connection, query)
+    # Concatenate date and time in Python before passing to the execute_query function
+    start_datetime = f"{start_date} {start_time}"
+    end_datetime = f"{end_date} {end_time}"
+
+    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, start_datetime, end_datetime))
 
 
 
-# Retrieve the latest WFPS call for each Neighbourhood, ordered by Neighbourhood name
-def latest_wfps_neighbourhood(connection):
+# Retrieve the WFPS Call id, date, call time, and reason for a given Neighbourhood. 
+def wfps_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
             n.Neighbourhood_Name,
             w.Date,
             w.Reason,
-            w.Call_Time
+            w.Call_Time,
         FROM
             Neighbourhood n
-            LEFT JOIN WFPS_Call w ON n.Neighbourhood_Name = w.Neighbourhood_Name
+            JOIN WFPS_Call w ON n.Neighbourhood_Name = w.Neighbourhood_Name
+            where n.neighbourhood_name = %s
         ORDER BY
             n.Neighbourhood_Name;
     '''
 
-    return execute_query(connection, query)
+    return execute_query(connection, query, neighbourhood)
 
 
-# No results because matching on GPS_Point
 # List all Streets with the count of Bus Stops on each street, ordered by Street Name
 def count_bus_stop_street(connection):
     latitude_diff = mu.meters_to_latitude_difference(int(ADJACENT_MIN_RADIUS))
@@ -431,16 +442,17 @@ def count_bus_stop_street(connection):
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff))
 
 
-# Find all Bus Stop ids, scheduled time, and dates within a given range in meters of all known GPS Points of a given Street Name and Type
+# Find all Bus Stop ids, scheduled time, and dates and Bus Route name within a given range in meters of all known GPS Points of a given Street Name and Type
 def bus_stops_on_street(connection, street_name, street_type, meters):
     latitude_diff = mu.meters_to_latitude_difference(int(meters))
     longitude_diff = mu.meters_to_longitude_difference(int(meters), latitude_diff)
 
     query = '''
-        SELECT bus_stop.row_ID, bus_stop.longitude, bus_stop.latitude, bus_stop.date, bus_stop.scheduled_time
+        SELECT bus_stop.row_ID, bus_stop.longitude, bus_stop.latitude, bus_stop.date, bus_stop.scheduled_time, bus_route.route_name
         FROM bus_stop
         JOIN gps_point ON gps_point.latitude BETWEEN (bus_stop.latitude - %s) AND (bus_stop.latitude + %s)
         AND gps_point.longitude BETWEEN (bus_stop.longitude - %s) AND (bus_stop.longitude + %s)
+        join bus_route on bus_route.route_number = bus_stop.route_number and bus_route.route_destination = bus_stop.route_destination
         WHERE gps_point.street_name = %s AND gps_point.street_type = %s;
     '''
     
@@ -473,3 +485,4 @@ def parking_citation_and_tow(connection, street_name, street_type):
     '''
 
     return execute_query(connection, query, (street_name, street_type))
+

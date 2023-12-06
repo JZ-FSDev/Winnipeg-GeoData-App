@@ -79,10 +79,15 @@ def street_paystation():
     result = ms.street_paystation(db_connection)
 
     if len(result) > 0:
-        json_result = [{'street_name': item[0], 'street_type': item[1], 'paystation_id': item[2], 'time_limit': item[3], 'space': item[4]} for item in result]
+        columns = ['street_name', 'street_type', 'paystation_id', 'time_limit', 'space', 'Latitude', "Longitude"]
+        df = pd.DataFrame(result, columns=columns)
+        im.update_map(df, 'paystation_id')
+
+        json_result = [{'street_name': item[0], 'street_type': item[1], 'paystation_id': item[2], 'time_limit (hours)': item[3], 'space': item[4]} for item in result]
         return jsonify({'result': json_result})
     else:
         return jsonify({'result': []})
+    
 
 @app.route('/api/tows_in_neighbourhood', methods=['POST'])
 def tows_in_neighbourhood():
@@ -101,21 +106,35 @@ def tows_in_neighbourhood():
     else:
         return jsonify({'result': []})
 
-@app.route('/api/bus_stop_neighbourhood_bus_route', methods=['POST'])
-def bus_stop_neighbourhood_bus_route():
-    im.update_empty_map()  # Clear map
-    result = ms.bus_stop_neighbourhood_bus_route(db_connection)
-    if result:
-        json_result = [{'bus_stop_number': item[0], 'longitude': item[1], 'latitude': item[2], 'neighbourhood': item[3], 'route_number': item[4], "route_destination": item[5]} for item in result]
+@app.route('/api/bus_route_in_neighbourhood_between_date_time', methods=['POST'])
+def bus_route_in_neighbourhood_between_date_time():
+
+    data = request.get_json()
+    start_date = data.get('start-date')
+    start_time = data.get('start-time')
+    end_date = data.get('end-date')
+    end_time = data.get('end-time')
+    neighbourhood = data.get('neighbourhood')
+
+    result = ms.bus_route_in_neighbourhood_between_date_time(db_connection, start_date, start_time, end_date, end_time, neighbourhood)
+
+    if len(result) > 0:
+        columns = ['route_number', 'route_destination', 'route_name', 'Latitude', 'Longitude']
+        df = pd.DataFrame(result, columns=columns)
+        im.update_map(df, ['route_number', 'route_destination'])
+
+        json_result = [{'route_number': item[0], 'route_destination': item[1], 'route_name': item[2]} for item in result]
         return jsonify({'result': json_result})
     else:
         return jsonify({'result': []})
 
-@app.route('/api/latest_wfps_neighbourhood', methods=['POST'])
-def latest_wfps_neighbourhood():
-    im.update_empty_map()  # Clear map
-    result = ms.latest_wfps_neighbourhood(db_connection)
-    if result:
+@app.route('/api/wfps_neighbourhood', methods=['POST'])
+def wfps_neighbourhood():
+    data = request.get_json()
+    neighbourhood = data.get('neighbourhood')
+
+    result = ms.wfps_neighbourhood(db_connection, neighbourhood)
+    if len(result) > 0:
         json_result = [{'neighbourhood': item[0], 'call_date': item[1], 'reason': item[2], 'call_time': item[3]} for item in result]
         return jsonify({'result': json_result})
     else:
@@ -125,7 +144,7 @@ def latest_wfps_neighbourhood():
 def count_bus_stop_street():
     im.update_empty_map()  # Clear map
     result = ms.count_bus_stop_street(db_connection)
-    if result:
+    if len(result) > 0:
         json_result = [{'street_name': item[0], 'street_type': item[1], 'bus_count': item[2]} for item in result]
         return jsonify({'result': json_result})
     else:
@@ -161,11 +180,11 @@ def bus_stops_on_street():
     result = ms.bus_stops_on_street(db_connection, street_name, street_type, num_meters)
 
     if len(result) > 0:
-        columns = ['bus_stop_id', 'Longitude', 'Latitude', 'date', 'scheduled_time']
+        columns = ['bus_stop_id', 'Longitude', 'Latitude', 'date', 'scheduled_time', 'route_name']
         df = pd.DataFrame(result, columns=columns)
         im.update_map(df, 'bus_stop_id')
 
-        json_result = [{'bus_stop_id': item[0], 'scheduled_time': str(item[4]), 'date': item[3]} for item in result]
+        json_result = [{'bus_stop_id': item[0], 'scheduled_time': str(item[4]), 'date': item[3], 'route_name': item[5]} for item in result]
         return jsonify({'result': json_result})
     else:
         return jsonify({'result': []})
