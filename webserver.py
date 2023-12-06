@@ -124,12 +124,12 @@ def bus_route_in_neighbourhood_between_date_time():
     else:
         return jsonify({'result': []})
 
-@app.route('/api/wfps_neighbourhood', methods=['POST'])
-def wfps_neighbourhood():
+@app.route('/api/wfps_in_neighbourhood', methods=['POST'])
+def wfps_in_neighbourhood():
     data = request.get_json()
     neighbourhood = data.get('neighbourhood')
 
-    result = ms.wfps_neighbourhood(db_connection, neighbourhood)
+    result = ms.wfps_in_neighbourhood(db_connection, neighbourhood)
     if len(result) > 0:
         json_result = [{'neighbourhood': item[0], 'call_date': item[1], 'reason': item[2], 'call_time': item[3]} for item in result]
         return jsonify({'result': json_result})
@@ -185,13 +185,13 @@ def bus_stops_on_street():
     else:
         return jsonify({'result': []})
     
-@app.route('/api/parking_citation_and_tow', methods=['POST'])
-def parking_citation_and_tow():
+@app.route('/api/parking_citation_and_tow_on_street', methods=['POST'])
+def parking_citation_and_tow_on_street():
     data = request.get_json()
     street_name = data.get('street_name')
     street_type = data.get('street_type')
     
-    result = ms.parking_citation_and_tow(db_connection, street_name, street_type)
+    result = ms.parking_citation_and_tow_on_street(db_connection, street_name, street_type)
 
     if len(result) > 0:
         columns = ['citation_id', 'fine_amount', 'violation_type', 'tow_id', 'status', 'Latitude', 'Longitude']

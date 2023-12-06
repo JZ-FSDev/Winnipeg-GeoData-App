@@ -18,17 +18,6 @@ document.addEventListener('DOMContentLoaded', function () {
             alert("Please select a query before executing.");
             return; // Stop execution if no query is selected
         }
-        // Check if a neighbourhood is selected
-        if (neighbourhood === "") {
-            alert("Please select a neighbourhood before executing.");
-            return; // Stop execution if no query is selected
-        }
-        // Check if a date and time range is selected
-        if (start_time === "" || start_date === "" || end_time === "" || end_date === "") {
-            alert("Please fill in date and time range before executing.");
-            return; // Stop execution if no query is selected
-        }
-
 
         // Display "Loading..." message
         const resultsContainer = document.getElementById('results-container');
@@ -118,11 +107,11 @@ document.addEventListener('DOMContentLoaded', function () {
         "street_paystation": "List all Streets and their respective Paystation id, time_limit, and space, ordered by Street name and type. Plots the results in the interactive map",
         "tows_in_neighbourhood": "Find all Tows ids and their status in a given Neighbourhood. Displays the Tows in the interactive map",
         "bus_route_in_neighbourhood_between_date_time": "List all unique Bus Route numbers, destinations, and names between a given date and time range that run through a given neighbourhood",
-        "wfps_neighbourhood": "Retrieve the WFPS Call id, date, call time, and reason for a given Neighbourhood",
+        "wfps_in_neighbourhood": "Retrieve the WFPS Call id, date, call time, and reason for a given Neighbourhood",
         "count_bus_stop_street": "List all Streets with the count of Bus Stops on each street, ordered by Street name and type",
         "lane_closures_in_neighbourhood": "Find all Lane Closure ids and date ranges in a given Neighbourhood. Displays the center locations of the Lane Closures on the interactive map",
         "bus_stops_on_street": "Find all Bus Stop ids, scheduled time, and dates and Bus Route name within a given range in meters of all known GPS Points of a given Street name and type. Displays the Bus Stops on the interactive map",
-        "parking_citation_and_tow": "Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type. Displays the shared locations of the Tows and Parking Citations",
+        "parking_citation_and_tow_on_street": "Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type. Displays the shared locations of the Tows and Parking Citations",
         // Add more queries and descriptions as needed
     };
 
@@ -135,29 +124,52 @@ document.addEventListener('DOMContentLoaded', function () {
         "street_paystation": ['Street', 'Paystation'],
         "tows_in_neighbourhood": ['Tow', 'Neighbourhood'],
         "bus_route_in_neighbourhood_between_date_time": ['Bus Route', 'Neighbourhood', 'Date', 'Time'],
-        "wfps_neighbourhood": ['WFPS Call', 'Neighbourhood'],
+        "wfps_in_neighbourhood": ['WFPS Call', 'Neighbourhood'],
         "count_bus_stop_street": ['Bus Stop', 'Street'],
         "lane_closures_in_neighbourhood": ['Lane Closure', 'Neighbourhood'],
         "bus_stops_on_street": ['Bus Stop', 'Street'],
-        "parking_citation_and_tow": ['Parking Citation', 'Tow'],
+        "parking_citation_and_tow_on_street": ['Parking Citation', 'Tow'],
     }
 
-    function updateQueryDescription() {
-        const dropdown = document.getElementById("query-dropdown");
-        dropdown.innerHTML = ''; // Clear existing options
+    const parameterCategories = {
+        "total_substance_neighbourhood": [],
+        "count_lane_closure_street": [],
+        "total_wfps_call_neighbourhood": [],
+        "count_parking_citation_street": [],
+        "bus_route_avg_deviation": [],
+        "street_paystation": [],
+        "tows_in_neighbourhood": ['neighbourhood-section'],
+        "bus_route_in_neighbourhood_between_date_time": ['neighbourhood-section', 'start-date-time-section', 'end-date-time-section'],
+        "wfps_in_neighbourhood": ['neighbourhood-section'],
+        "count_bus_stop_street": [],
+        "lane_closures_in_neighbourhood": ['neighbourhood-section'],
+        "bus_stops_on_street": ['street-section'],
+        "parking_citation_and_tow_on_street": ['street-section'],
+    };
 
+    function updateQueryDescription() {
+
+        const dropdown = document.getElementById("query-dropdown");
+        let selectedQuery = dropdown.value; // Store the currently selected option
+        const descriptionElement = document.getElementById("query-description");
         const selectedCheckboxes = Array.from(document.querySelectorAll('.checkbox-column input:checked'));
-        const selectedCategories = selectedCheckboxes.map(checkbox => checkbox.name.replace('filter-', ''));
+        const selectedCategories = selectedCheckboxes.map(checkbox => checkbox.name);
 
         const allQueries = Object.keys(queryCategories);
 
-        // If no checkboxes are checked, show all queries and add default option
-        if (selectedCategories.length === 0) {
-            const defaultOption = document.createElement('option');
-            defaultOption.value = "";
-            defaultOption.textContent = "Select a Query";
-            dropdown.appendChild(defaultOption);
+        // Clear existing options
+        dropdown.innerHTML = '';
 
+        // Add the static "Select a Query" option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = "Select a Query";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        dropdown.appendChild(defaultOption);
+
+        // If no checkboxes are checked, show all queries
+        if (selectedCategories.length === 0) {
             for (const query of allQueries) {
                 const option = document.createElement('option');
                 option.value = query;
@@ -177,18 +189,51 @@ document.addEventListener('DOMContentLoaded', function () {
                 option.textContent = query;
                 dropdown.appendChild(option);
             }
+
+            // Show the corresponding parameter categories for the selected query
+            showParameterCategories(parameterCategories[selectedQuery] || []);
+
+        }
+
+        // Restore the selected option if it still exists
+        if (selectedQuery && dropdown.querySelector(`option[value="${selectedQuery}"]`)) {
+            dropdown.value = selectedQuery;
+        } else {
+            // Otherwise, select the default option
+            dropdown.value = "";
+            selectedQuery = "";
+            hideAllParameterCategories();
         }
 
         // Update the description based on the selected query
-        const selectedQuery = dropdown.value;
-        const descriptionElement = document.getElementById("query-description");
         descriptionElement.textContent = queryDescriptions[selectedQuery] || "";
     }
 
+    function hideAllParameterCategories() {
+        const allParameterCategories = document.querySelectorAll('.dual-input-container');
+        allParameterCategories.forEach(category => {
+            category.style.display = 'none';
+        });
+    }
 
+    function showParameterCategories(categoriesToShow) {
+        hideAllParameterCategories();
+        categoriesToShow.forEach(category => {
+            const div = document.getElementById(category);
+            if (div) {
+                div.style.display = 'block';
+            }
+        });
+    }
 
     // Attach the update function to the change event of the dropdown
-    document.getElementById("query-dropdown").addEventListener("change", updateQueryDescription);
+    document.getElementById("query-dropdown").addEventListener("change", function () {
+        // Show the corresponding parameter categories for the selected query
+        const selectedQuery = this.value;
+        showParameterCategories(parameterCategories[selectedQuery] || []);
+
+        updateQueryDescription();
+    });
 
     // Attach the update function to the change event of checkboxes
     const checkboxes = document.querySelectorAll('.checkbox-column input');
@@ -196,8 +241,8 @@ document.addEventListener('DOMContentLoaded', function () {
         checkbox.addEventListener('change', updateQueryDescription);
     });
 
-    // Trigger the update on page load
-    // updateQueryDescription();
+    // Hide all parameter categories
+    hideAllParameterCategories();
 });
 
 function updateMap() {

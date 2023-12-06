@@ -392,7 +392,7 @@ def bus_route_in_neighbourhood_between_date_time(connection, start_date, start_t
 
 
 # Retrieve the WFPS Call id, date, call time, and reason for a given Neighbourhood
-def wfps_neighbourhood(connection, neighbourhood):
+def wfps_in_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
             n.Neighbourhood_Name,
@@ -469,7 +469,7 @@ def lane_closures_in_neighbourhood(connection, neighbourhood):
 
 
 # Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type. Displays the shared locations of the Tows and Parking Citations
-def parking_citation_and_tow(connection, street_name, street_type):
+def parking_citation_and_tow_on_street(connection, street_name, street_type):
     query = '''
         select parking_citation.citation_id, parking_violation.fine_amount, parking_citation.violation_type, tow.tow_id, tow.status, tow.latitude, tow.longitude
         from parking_citation
