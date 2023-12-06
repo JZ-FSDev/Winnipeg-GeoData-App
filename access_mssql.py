@@ -398,7 +398,7 @@ def wfps_in_neighbourhood(connection, neighbourhood):
             n.Neighbourhood_Name,
             w.Date,
             w.Reason,
-            w.Call_Time,
+            w.Call_Time
         FROM
             Neighbourhood n
             JOIN WFPS_Call w ON n.Neighbourhood_Name = w.Neighbourhood_Name
@@ -407,7 +407,7 @@ def wfps_in_neighbourhood(connection, neighbourhood):
             n.Neighbourhood_Name;
     '''
 
-    return execute_query(connection, query, neighbourhood)
+    return execute_query(connection, query, (neighbourhood))
 
 
 # List all Streets with the count of Bus Stops on each street, ordered by Street name and type
