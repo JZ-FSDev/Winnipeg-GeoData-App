@@ -75,6 +75,7 @@ th {
 .dual-input-container {
     display: flex;
     gap: 10px;
+    display: none;
 }
 
 /* Execute query button styles */

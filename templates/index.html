@@ -65,13 +65,13 @@
             <section>
                 <h3>Specify Query Parameters:</h2>
                     <div class="dual-input-container" id="start-date-time-section">
-                        <p>Start Date: <input type="date" id="start-date" name="start-date"></p>
-                        <p>Start Time: <input type="time" id="start-time" name="start-time" step="1"></p>
+                        <p>Start Date: <input type="date" id="start-date" name="start-date" value="2019-10-01" min="2019-10-01" max="2023-08-01"></p>
+                        <p>Start Time: <input type="time" id="start-time" name="start-time" step="1" value="08:00:00"></p>
                     </div>
                     <div class="dual-input-container" id="end-date-time-section">
-                        <p>End Date: <input type="date" id="end-date" name="end-date"></p>
-                        <p>End Time: <input type="time" id="end-time" name="end-time" step="1"></p>
-                    </div>
+                        <p>End Date: <input type="date" id="end-date" name="end-date" value="2020-01-01" min="2019-09-30" max="2023-08-02"></p>
+                        <p>End Time: <input type="time" id="end-time" name="end-time" step="1" value="18:00:00"></p>
+                    </div>                    
                     <div class="dual-input-container" id="street-section">
                         <p>Street Name:
                             <select id="street-name" name="street-name">
@@ -4553,7 +4553,7 @@
                     </div>
 
                     <div class="dual-input-container" id="meter-section">
-                        <p>Distance (meters): <input type="number" id="num-meters" name="num-meters"
+                        <p>Distance (meters): <input type="number" id="num-meters" name="num-meters" value=0
                             oninput="this.value = Math.abs(this.value)"></p>
                     </div>
             </section>
