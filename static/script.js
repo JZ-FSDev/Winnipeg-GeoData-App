@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function () {
             return; // Stop execution if no query is selected
         }
 
+        // Disable the "Execute" button
+        const executeBtn = document.getElementById('execute-btn');
+        executeBtn.disabled = true;
+
         // Display "Loading..." message
         const resultsContainer = document.getElementById('results-container');
         resultsContainer.innerHTML = '<p>Loading...</p>';
@@ -95,6 +99,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Update the results container with the error message
                 resultsContainer.innerHTML = '<p>Error: ' + error.message + '</p>';
             })
+            .finally(() => {
+                // Enable the "Execute" button again after fetch completes (success or error)
+                executeBtn.disabled = false;
+            });
     });
 
     // Define a dictionary to map queries to descriptions
