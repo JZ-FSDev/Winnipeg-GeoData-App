@@ -25,6 +25,7 @@ lane_closure_file = script_relative_path + "Lane_Closure.sql"
 tow_file = script_relative_path + "Tow.sql"
 bus_route_file = script_relative_path + "Bus_Route.sql"
 bus_stop_file = script_relative_path + "Bus_Stop.sql"
+indexes_file = script_relative_path + "Indexes.sql"
 
 ADJACENT_MIN_RADIUS = 100  # 100 meter range for considering two entities to be adjacent to each other
 
@@ -174,6 +175,12 @@ def populate_database(connection):
             cursor.execute(script_content)
         connection.commit()
         print("Bus_Stops inserted successfully.")  
+
+        with open(indexes_file) as script:
+            script_content = script.read()
+            cursor.execute(script_content)
+        connection.commit()
+        print("Indexes created successfully.")  
 
         print("All data inserted successfully")
     except FileNotFoundError:
