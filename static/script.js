@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "wfps_in_neighbourhood": ['neighbourhood-section'],
         "count_bus_stop_street": [],
         "lane_closures_in_neighbourhood": ['neighbourhood-section'],
-        "bus_stops_on_street": ['street-section'],
+        "bus_stops_on_street": ['street-section', 'meter-section'],
         "parking_citation_and_tow_on_street": ['street-section'],
     };
 

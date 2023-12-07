@@ -451,7 +451,7 @@ def bus_stops_on_street(connection, street_name, street_type, meters):
     longitude_diff = mu.meters_to_longitude_difference(int(meters), latitude_diff)
 
     query = '''
-        SELECT bus_stop.row_ID, bus_stop.longitude, bus_stop.latitude, bus_stop.date, bus_stop.scheduled_time, bus_route.route_name
+        SELECT distinct bus_stop.row_ID, bus_stop.longitude, bus_stop.latitude, bus_stop.date, bus_stop.scheduled_time, bus_route.route_name
         FROM bus_stop
         JOIN gps_point ON gps_point.latitude BETWEEN (bus_stop.latitude - %s) AND (bus_stop.latitude + %s)
         AND gps_point.longitude BETWEEN (bus_stop.longitude - %s) AND (bus_stop.longitude + %s)
