@@ -1,31 +1,32 @@
 import pymssql
 import config_reader as cr
 import math_utils as mu
-from datetime import datetime
 
-script_file = "script.sql"  # Script to generate our tables
-street_file = "Street.sql"  # Script to insert Street info
-neighbourhood_file = "Neighbourhood.sql"  # Script to insert Neighbourhood info
-neighbourhood_street_file = "Neighbourhood_street.sql"  # Script to insert Neighbourhood_steet info
-substance_file = "Substances.sql"  # Script to insert Substance info
-wfps_call_file = "WFPS_Call.sql"  # Script to insert WFPS Call part 1 info
-gps_point_file_address = "GPS_Point_Addresses.sql"
-gps_point_file_bus_stop = "GPS_Point_Bus_Stop.sql"
-gps_point_file_lane_closure = "GPS_Point_Lane_Closure.sql"
-gps_point_park_citation = "GPS_Point_Park_Citation.sql"
-gps_point_file_paystation = "GPS_Point_Paystation.sql"
-gps_point_tow = "GPS_Point_Tow.sql"
-parking_violation_file = "Parking_Violation.sql"
-paystation_file = "Paystation.sql"
-parking_citation_file = "Parking_Citation.sql"
-lane_closure_file = "Lane_Closure.sql"
-tow_file = "Tow.sql"
-bus_route_file = "Bus_Route.sql"
-bus_stop_file = "Bus_Stop.sql"
+
+script_relative_path = "sql_files/"
+
+# Define SQL script file paths
+drop_create_table_file = script_relative_path + "Drop_Create_Tables.sql" 
+street_file = script_relative_path + "Street.sql" 
+neighbourhood_file = script_relative_path + "Neighbourhood.sql"  
+neighbourhood_street_file = script_relative_path + "Neighbourhood_Street.sql"  
+substance_file = script_relative_path + "Substances.sql"  
+wfps_call_file = script_relative_path + "WFPS_Call.sql" 
+gps_point_file_address = script_relative_path + "GPS_Point_Addresses.sql"
+gps_point_file_bus_stop = script_relative_path + "GPS_Point_Bus_Stop.sql"
+gps_point_file_lane_closure = script_relative_path + "GPS_Point_Lane_Closure.sql"
+gps_point_park_citation = script_relative_path + "GPS_Point_Park_Citation.sql"
+gps_point_file_paystation = script_relative_path + "GPS_Point_Paystation.sql"
+gps_point_tow = script_relative_path + "GPS_Point_Tow.sql"
+parking_violation_file = script_relative_path + "Parking_Violation.sql"
+paystation_file = script_relative_path + "Paystation.sql"
+parking_citation_file = script_relative_path + "Parking_Citation.sql"
+lane_closure_file = script_relative_path + "Lane_Closure.sql"
+tow_file = script_relative_path + "Tow.sql"
+bus_route_file = script_relative_path + "Bus_Route.sql"
+bus_stop_file = script_relative_path + "Bus_Stop.sql"
 
 ADJACENT_MIN_RADIUS = 100  # 100 meter range for considering two entities to be adjacent to each other
-
-### Consider using multi threaded insert and transactions for the insert ###
 
 
 def connect_to_sql_server():
@@ -60,7 +61,7 @@ def populate_database(connection):
     try:
         cursor = connection.cursor()
 
-        with open(script_file) as script:
+        with open(drop_create_table_file) as script:
             script_content = script.read()
             cursor.execute(script_content)
         connection.commit()
@@ -176,7 +177,7 @@ def populate_database(connection):
 
         print("All data inserted successfully")
     except FileNotFoundError:
-        print(f"Could not find the script file: {script_file}")
+        print(f"Could not find the script file")
     except pymssql.Error as e:
         print(f"Error executing the script: {e}")
 
