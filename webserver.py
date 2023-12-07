@@ -3,9 +3,10 @@ import access_mssql as ms
 from flask import Flask, jsonify, render_template, request
 import config_reader as cr
 import pandas as pd
+import sys
 
 
-db_connection = None  # A connection to our db  (May choose to make a new connection each time)
+db_connection = None  # A connection to our db
 
 app = Flask(__name__)
 
@@ -217,10 +218,12 @@ def main():
 
     host, port = cr.get_host_port()
     db_connection = ms.connect_to_sql_server()
-    # ms.populate_database(db_connection)
+
+    if len(sys.argv) > 1 and sys.argv[1] == '-populate':
+        ms.populate_database(db_connection)
 
     app.run(debug=True, host=host, port=port, use_reloader=False)
-    # app.run(debug=True, host=host, port=port)
+    
 
 if __name__ == '__main__':
     main()

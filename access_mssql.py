@@ -65,7 +65,7 @@ def populate_database(connection):
             script_content = script.read()
             cursor.execute(script_content)
         connection.commit()
-        print("Script executed successfully.")
+        print("Drop and Create Tables executed successfully.")
 
         with open(street_file) as script:
             script_content = script.read()
