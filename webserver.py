@@ -58,7 +58,7 @@ def count_parking_citation_street():
     result = ms.count_parking_citation_street(db_connection)
     
     if len(result) > 0:
-        json_result = [{'street_name': item[0], 'street_type': item[1], 'closure_count': item[2]} for item in result]
+        json_result = [{'street_name': item[0], 'street_type': item[1], 'citation_count': item[2]} for item in result]
         return jsonify({'result': json_result})
     else:
         return jsonify({'result': []})
@@ -69,7 +69,7 @@ def bus_route_avg_deviation():
     result = ms.bus_route_avg_deviation(db_connection)
 
     if len(result) > 0:
-        json_result = [{'route_number': item[0], 'route_destination': item[1], 'average_deviation': item[2]} for item in result]
+        json_result = [{'route_number': item[0], 'route_destination': item[1], 'average_deviation (minutes)': item[2]} for item in result]
         return jsonify({'result': json_result})
     else:
         return jsonify({'result': []})
@@ -105,6 +105,7 @@ def tows_in_neighbourhood():
         json_result = [{'tow_id': item[0], 'tow_status': item[3]} for item in result]
         return jsonify({'result': json_result})
     else:
+        im.update_empty_map()  # Clear map
         return jsonify({'result': []})
 
 @app.route('/api/bus_route_in_neighbourhood_between_date_time', methods=['POST'])
@@ -162,6 +163,7 @@ def lane_closures_in_neighbourhood():
         json_result = [{'lane_closure_id': item[0], 'date_from': item[1], 'date_to': item[2]} for item in result]
         return jsonify({'result': json_result})
     else:
+        im.update_empty_map()  # Clear map
         return jsonify({'result': []})
     
 @app.route('/api/bus_stops_on_street', methods=['POST'])
@@ -184,6 +186,7 @@ def bus_stops_on_street():
         json_result = [{'bus_stop_id': item[0], 'scheduled_time': str(item[4]), 'date': item[3], 'route_name': item[5]} for item in result]
         return jsonify({'result': json_result})
     else:
+        im.update_empty_map()  # Clear map
         return jsonify({'result': []})
     
 @app.route('/api/parking_citation_and_tow_on_street', methods=['POST'])
@@ -202,6 +205,7 @@ def parking_citation_and_tow_on_street():
         json_result = [{'citation_id': item[0], 'fine_amount': item[1], 'violation_type': item[2], 'tow_id': item[3], 'tow_status': item[4]} for item in result]
         return jsonify({'result': json_result})
     else:
+        im.update_empty_map()  # Clear map
         return jsonify({'result': []})
 
 # Route for the index.html page

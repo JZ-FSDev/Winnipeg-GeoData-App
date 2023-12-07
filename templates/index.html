@@ -4553,8 +4553,8 @@
                     </div>
 
                     <div class="dual-input-container" id="meter-section">
-                        <p>Distance (meters): <input type="number" id="num-meters" name="num-meters" value=0
-                            oninput="this.value = Math.abs(this.value)"></p>
+                        <p>Distance (meters): <input type="number" id="num-meters" name="num-meters" value="0" 
+                            oninput="this.value = Math.min(250, Math.abs(parseInt(this.value) || 0))"></p>
                     </div>
             </section>
 
