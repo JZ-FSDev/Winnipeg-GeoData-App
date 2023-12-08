@@ -90,7 +90,7 @@ def populate_database(connection):
             script_content = script.read()
             cursor.execute(script_content)
         connection.commit()
-        print("Substance Uses inserted successfully.")
+        print("Substance_Uses inserted successfully.")
 
         with open(wfps_call_file) as script:
             script_content = script.read()
