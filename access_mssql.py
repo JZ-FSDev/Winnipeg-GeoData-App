@@ -489,3 +489,32 @@ def parking_citation_and_tow_on_street(connection, street_name, street_type):
 
     return execute_query(connection, query, (street_name, street_type))
 
+#Transit delays that might have been caused due to Tows happening nearby
+def transit_delay_due_to_tow(connection, meters):
+    latitude_diff = mu.meters_to_latitude_difference(int(100))
+    longitude_diff = mu.meters_to_longitude_difference(int(100), latitude_diff)
+
+    query = '''
+        SELECT
+            bs.Latitude, bs.Longitude, bs.Scheduled_Time, 
+            (bs.Scheduled_Time - bs.Deviation) as Actual_Time,
+            bs.Route_Destination, bs.Route_Number,
+            Tow.Latitude, Tow.Longitude,
+            br.Route_Name
+        FROM
+            bus_stop bs
+        JOIN
+            Bus_Route br ON
+                br.Route_Number = bs.Route_Number AND br.Route_Destination = br.Route_Destination
+        JOIN
+            Tow ON
+                bs.Latitude BETWEEN (Tow.Latitude - %s) AND (Tow.Latitude + %s)
+                AND bs.Longitude BETWEEN (Tow.Longitude - %s) AND (Tow.Longitude + %s)
+        WHERE
+            bs.Date = Tow.Date AND
+            bs.Deviation < 0 AND 
+            bs.Scheduled_Time BETWEEN (Tow.Time - 15) AND (Tow.Time + 15)
+        ORDER BY
+            bs.Deviation;
+    '''
+    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff))
