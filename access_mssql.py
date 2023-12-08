@@ -187,6 +187,10 @@ def populate_database(connection):
         print(f"Could not find the script file")
     except pymssql.Error as e:
         print(f"Error executing the script: {e}")
+    finally:
+        # Close the cursor
+        cursor.close() 
+        connection.close()
 
 
 # Executes the given query on via the given connection and returns the result set
@@ -209,6 +213,7 @@ def execute_query(connection, query, args=None):
     finally:
         # Close the cursor
         cursor.close() 
+        connection.close()
 
 
 

@@ -22,6 +22,7 @@ def greet(name):
 @app.route('/api/count_wfps_call_neighbourhood', methods=['POST'])
 def count_wfps_call_neighbourhood():
     im.update_empty_map()  # Clear map
+    db_connection = ms.connect_to_sql_server()    
     result = ms.count_wfps_call_neighbourhood(db_connection)
 
     if len(result) > 0:
@@ -33,6 +34,7 @@ def count_wfps_call_neighbourhood():
 @app.route('/api/count_substance_neighbourhood', methods=['POST'])
 def count_substance_neighbourhood():
     im.update_empty_map()  # Clear map
+    db_connection = ms.connect_to_sql_server()    
     result = ms.count_substance_neighbourhood(db_connection)
 
     if len(result) > 0:
@@ -44,6 +46,7 @@ def count_substance_neighbourhood():
 @app.route('/api/count_lane_closure_street', methods=['POST'])
 def count_lane_closure_street():
     im.update_empty_map()  # Clear map
+    db_connection = ms.connect_to_sql_server()    
     result = ms.count_lane_closure_street(db_connection)
 
     if len(result) > 0:
@@ -55,6 +58,7 @@ def count_lane_closure_street():
 @app.route('/api/count_parking_citation_street', methods=['POST'])
 def count_parking_citation_street():
     im.update_empty_map()  # Clear map
+    db_connection = ms.connect_to_sql_server()
     result = ms.count_parking_citation_street(db_connection)
     
     if len(result) > 0:
@@ -66,6 +70,7 @@ def count_parking_citation_street():
 @app.route('/api/bus_route_avg_deviation', methods=['POST'])
 def bus_route_avg_deviation():
     im.update_empty_map()  # Clear map
+    db_connection = ms.connect_to_sql_server()
     result = ms.bus_route_avg_deviation(db_connection)
 
     if len(result) > 0:
@@ -77,6 +82,7 @@ def bus_route_avg_deviation():
 @app.route('/api/street_paystation', methods=['POST'])
 def street_paystation():
     im.update_empty_map()  # Clear map
+    db_connection = ms.connect_to_sql_server()
     result = ms.street_paystation(db_connection)
 
     if len(result) > 0:
@@ -94,7 +100,7 @@ def street_paystation():
 def tows_in_neighbourhood():
     data = request.get_json()
     neighbourhood = data.get('neighbourhood')
-    
+    db_connection = ms.connect_to_sql_server()
     result = ms.tows_in_neighbourhood(db_connection, neighbourhood)
 
     if len(result) > 0:
@@ -117,7 +123,7 @@ def bus_route_in_neighbourhood_between_date_time():
     end_date = data.get('end_date')
     end_time = data.get('end_time')
     neighbourhood = data.get('neighbourhood')
-
+    db_connection = ms.connect_to_sql_server()
     result = ms.bus_route_in_neighbourhood_between_date_time(db_connection, start_date, start_time, end_date, end_time, neighbourhood)
 
     if len(result) > 0:
@@ -131,7 +137,7 @@ def wfps_in_neighbourhood():
     im.update_empty_map()  # Clear map
     data = request.get_json()
     neighbourhood = data.get('neighbourhood')
-
+    db_connection = ms.connect_to_sql_server()
     result = ms.wfps_in_neighbourhood(db_connection, neighbourhood)
     if len(result) > 0:
         json_result = [{'wfps_call_id': item[0], 'call_date': item[1], 'reason': item[2], 'call_time': item[3]} for item in result]
@@ -144,7 +150,7 @@ def substances_in_neighbourhood():
     im.update_empty_map()  # Clear map
     data = request.get_json()
     neighbourhood = data.get('neighbourhood')
-
+    db_connection = ms.connect_to_sql_server()
     result = ms.substances_in_neighbourhood(db_connection, neighbourhood)
     if len(result) > 0:
         json_result = [{'substance_use_id': item[0], 'substance': item[1], 'date': item[2], 'time': str(item[3])} for item in result]
@@ -155,6 +161,7 @@ def substances_in_neighbourhood():
 @app.route('/api/count_bus_stop_street', methods=['POST'])
 def count_bus_stop_street():
     im.update_empty_map()  # Clear map
+    db_connection = ms.connect_to_sql_server()
     result = ms.count_bus_stop_street(db_connection)
     if len(result) > 0:
         json_result = [{'street_name': item[0], 'street_type': item[1], 'bus_count': item[2]} for item in result]
@@ -166,7 +173,7 @@ def count_bus_stop_street():
 def lane_closures_in_neighbourhood():
     data = request.get_json()
     neighbourhood = data.get('neighbourhood')
-    
+    db_connection = ms.connect_to_sql_server()
     result = ms.lane_closures_in_neighbourhood(db_connection, neighbourhood)
 
     if len(result) > 0:
@@ -187,9 +194,7 @@ def bus_stops_on_street():
     street_type = data.get('street_type')
     num_meters = data.get('num_meters')
     
-    if num_meters == '':
-        num_meters = 0 
-
+    db_connection = ms.connect_to_sql_server()
     result = ms.bus_stops_on_street(db_connection, street_name, street_type, num_meters)
 
     if len(result) > 0:
@@ -208,7 +213,7 @@ def parking_citation_and_tow_on_street():
     data = request.get_json()
     street_name = data.get('street_name')
     street_type = data.get('street_type')
-    
+    db_connection = ms.connect_to_sql_server()
     result = ms.parking_citation_and_tow_on_street(db_connection, street_name, street_type)
 
     if len(result) > 0:
@@ -224,7 +229,7 @@ def parking_citation_and_tow_on_street():
     
 @app.route('/api/transit_delay_due_to_tow', methods=['POST'])
 def transit_delay_due_to_tow():
-
+    db_connection = ms.connect_to_sql_server()
     result = ms.transit_delay_due_to_tow(db_connection)
     if len(result) > 0:
         columns = ['bus_Latitude', 'bus_Longitude', 'scheduled_time', 'deviation (seconds)', 'route_destination', 'route_number', 'tow_Latitude', 'tow_Longitude', 'route_name', 'tow_id', 'bus_stop_id']
@@ -240,7 +245,7 @@ def transit_delay_due_to_tow():
 
 @app.route('/api/transit_delay_due_to_citation', methods=['POST'])
 def transit_delay_due_to_citation():
-
+    db_connection = ms.connect_to_sql_server()
     result = ms.transit_delay_due_to_citation(db_connection)
     if len(result) > 0:
         columns = ['bus_Latitude', 'bus_Longitude', 'scheduled_time', 'deviation (seconds)', 'route_destination', 'route_number', 'citation_Latitude', 'citation_Longitude', 'route_name', 'citation_id', 'bus_stop_id']
@@ -262,6 +267,8 @@ def tows_due_to_lane_closures():
     end_date = data.get('end_date')
     end_time = data.get('end_time')
     num_meters = data.get('num_meters')
+
+    db_connection = ms.connect_to_sql_server()
 
     result = ms.tows_due_to_lane_closures(db_connection, num_meters, start_date, end_date, start_time, end_time)
     if len(result) > 0:
@@ -286,12 +293,10 @@ def index():
 
 
 def main():
-    global db_connection
-
     host, port = cr.get_host_port()
-    db_connection = ms.connect_to_sql_server()
 
     if len(sys.argv) > 1 and sys.argv[1] == '-populate':
+        db_connection = ms.connect_to_sql_server()
         ms.populate_database(db_connection)
 
     app.run(debug=True, host=host, port=port, use_reloader=False)
