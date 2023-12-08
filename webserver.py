@@ -147,7 +147,7 @@ def substances_in_neighbourhood():
 
     result = ms.substances_in_neighbourhood(db_connection, neighbourhood)
     if len(result) > 0:
-        json_result = [{'substance_use_id': item[0], 'substance': item[1], 'date': item[2], 'time': item[3]} for item in result]
+        json_result = [{'substance_use_id': item[0], 'substance': item[1], 'date': item[2], 'time': str(item[3])} for item in result]
         return jsonify({'result': json_result})
     else:
         return jsonify({'result': []})

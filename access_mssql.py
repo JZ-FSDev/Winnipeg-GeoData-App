@@ -389,7 +389,7 @@ def substances_in_neighbourhood(connection, neighbourhood):
             JOIN substance_use su ON n.Neighbourhood_Name = su.Neighbourhood_Name
             where n.neighbourhood_name = %s
         ORDER BY
-            su.time;
+            su.date;
     '''
 
     return execute_query(connection, query, (neighbourhood))
