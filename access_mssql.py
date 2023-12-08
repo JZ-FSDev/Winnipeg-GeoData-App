@@ -10,7 +10,7 @@ drop_create_table_file = script_relative_path + "Drop_Create_Tables.sql"
 street_file = script_relative_path + "Street.sql" 
 neighbourhood_file = script_relative_path + "Neighbourhood.sql"  
 neighbourhood_street_file = script_relative_path + "Neighbourhood_Street.sql"  
-substance_file = script_relative_path + "Substances.sql"  
+substance_use_file = script_relative_path + "Substance_Use.sql"  
 wfps_call_file = script_relative_path + "WFPS_Call.sql" 
 gps_point_file_address = script_relative_path + "GPS_Point_Addresses.sql"
 gps_point_file_bus_stop = script_relative_path + "GPS_Point_Bus_Stop.sql"
@@ -86,11 +86,11 @@ def populate_database(connection):
         connection.commit()
         print("Neighbourhood_Streets inserted successfully.")
 
-        with open(substance_file) as script:
+        with open(substance_use_file) as script:
             script_content = script.read()
             cursor.execute(script_content)
         connection.commit()
-        print("Substances inserted successfully.")
+        print("Substance Uses inserted successfully.")
 
         with open(wfps_call_file) as script:
             script_content = script.read()
@@ -231,17 +231,19 @@ def count_wfps_call_neighbourhood(connection):
     return execute_query(connection, query)
 
 
-# Retrieve the total count of Parking Citations for each Street
+# Retrieve the total count of Parking Citations and the sum of all violation fine amounts for each Street
 def count_parking_citation_street(connection):
     query = '''
         SELECT
             s.Street_Name,
             s.Street_Type,
-            COUNT(pc.Citation_ID) AS Citation_Count
+            COUNT(pc.Citation_ID) AS Citation_Count,
+            sum(pv.fine_amount) as Total_Fines
         FROM
             Street s
             LEFT JOIN GPS_Point gp ON s.Street_Name = gp.Street_Name AND s.Street_Type = gp.Street_Type
             LEFT JOIN Parking_Citation pc ON gp.Longitude = pc.Longitude AND gp.Latitude = pc.Latitude
+            left join parking_violation pv on pc.violation_type = pc.violation_type
         GROUP BY
             s.Street_Name, s.Street_Type
         ORDER BY
@@ -301,7 +303,7 @@ def count_substance_neighbourhood(connection):
             COUNT(s.Substance_Use_ID) AS Substance_Count
         FROM
             Neighbourhood n
-            LEFT JOIN Substances s ON n.Neighbourhood_Name = s.Neighbourhood_Name
+            LEFT JOIN Substance_use s ON n.Neighbourhood_Name = s.Neighbourhood_Name
         GROUP BY
             n.Neighbourhood_Name
         ORDER BY
@@ -372,19 +374,20 @@ def tows_in_neighbourhood(connection, neighbourhood):
     return execute_query(connection, query, (neighbourhood))
 
 
-# Find all Substance Use ids, statuses, and times in a given Neighbourhood. Displays the Substance Uses in the interactive map
+# Retrieves all Substance Use ids, dates, times, and substances for a given Neighbourhood
 def substances_in_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
             su.substance_use_id,
-            su.status
+            su.substance,
+            su.date,
             su.time
         FROM
             Neighbourhood n
-            JOIN substance_use_ su ON n.Neighbourhood_Name = su.Neighbourhood_Name
+            JOIN substance_use su ON n.Neighbourhood_Name = su.Neighbourhood_Name
             where n.neighbourhood_name = %s
         ORDER BY
-            n.Neighbourhood_Name;
+            su.time;
     '''
 
     return execute_query(connection, query, (neighbourhood))
@@ -416,7 +419,6 @@ def bus_route_in_neighbourhood_between_date_time(connection, start_date, start_t
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, start_time, end_time, start_date, end_date, neighbourhood))
 
 
-
 # Retrieve all the WFPS Call ids, dates, call times, and reasons for a given Neighbourhood
 def wfps_in_neighbourhood(connection, neighbourhood):
     query = '''
@@ -430,7 +432,7 @@ def wfps_in_neighbourhood(connection, neighbourhood):
             JOIN WFPS_Call w ON n.Neighbourhood_Name = w.Neighbourhood_Name
             where n.neighbourhood_name = %s
         ORDER BY
-            n.Neighbourhood_Name;
+            su.time;
     '''
 
     return execute_query(connection, query, (neighbourhood))
@@ -469,13 +471,27 @@ def bus_stops_on_street(connection, street_name, street_type, meters):
     longitude_diff = mu.meters_to_longitude_difference(int(meters), latitude_diff)
 
     query = '''
-        SELECT distinct bus_stop.row_ID, bus_stop.longitude, bus_stop.latitude, bus_stop.date, bus_stop.scheduled_time, bus_route.route_name
-        FROM bus_stop
-        JOIN gps_point ON gps_point.latitude BETWEEN (bus_stop.latitude - %s) AND (bus_stop.latitude + %s)
-        AND gps_point.longitude BETWEEN (bus_stop.longitude - %s) AND (bus_stop.longitude + %s)
-        join bus_route on bus_route.route_number = bus_stop.route_number and bus_route.route_destination = bus_stop.route_destination
-        WHERE gps_point.street_name = %s AND gps_point.street_type = %s
-        order by bus_stop.date;
+        SELECT DISTINCT
+            bus_stop.row_ID,
+            bus_stop.longitude,
+            bus_stop.latitude,
+            bus_stop.date,
+            bus_stop.scheduled_time,
+            bus_route.route_name
+        FROM
+            bus_stop
+        JOIN
+            gps_point ON gps_point.latitude BETWEEN (bus_stop.latitude - %s) AND (bus_stop.latitude + %s)
+                AND gps_point.longitude BETWEEN (bus_stop.longitude - %s) AND (bus_stop.longitude + %s)
+        JOIN
+            bus_route ON bus_route.route_number = bus_stop.route_number
+                AND bus_route.route_destination = bus_stop.route_destination
+        WHERE
+            gps_point.street_name = %s
+            AND gps_point.street_type = %s
+        ORDER BY
+            bus_stop.date;
+
     '''
     
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, street_name, street_type))
@@ -484,12 +500,23 @@ def bus_stops_on_street(connection, street_name, street_type, meters):
 # Find all Lane Closure ids and date ranges in a given Neighbourhood. Displays the center locations of the Lane Closures on the interactive map
 def lane_closures_in_neighbourhood(connection, neighbourhood):
     query = '''
-        select lane_closure.lane_closure_id, lane_closure.date_from, lane_closure.date_to, lane_closure.latitude, lane_closure.longitude
-        from neighbourhood
-        join neighbourhood_street on neighbourhood.neighbourhood_name = neighbourhood_street.neighbourhood_name
-        join lane_closure on lane_closure.street_name = neighbourhood_street.street_name and lane_closure.street_type = neighbourhood_street.street_type
-        where neighbourhood.neighbourhood_name = %s
-        order by lane_closure.lane_closure_id;
+        SELECT
+            lane_closure.lane_closure_id,
+            lane_closure.date_from,
+            lane_closure.date_to,
+            lane_closure.latitude,
+            lane_closure.longitude
+        FROM
+            neighbourhood
+        JOIN
+            neighbourhood_street ON neighbourhood.neighbourhood_name = neighbourhood_street.neighbourhood_name
+        JOIN
+            lane_closure ON lane_closure.street_name = neighbourhood_street.street_name
+                        AND lane_closure.street_type = neighbourhood_street.street_type
+        WHERE
+            neighbourhood.neighbourhood_name = %s
+        ORDER BY
+            lane_closure.lane_closure_id;
     '''
 
     return execute_query(connection, query, (neighbourhood))
@@ -498,12 +525,25 @@ def lane_closures_in_neighbourhood(connection, neighbourhood):
 # Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type. Displays the shared locations of the Tows and Parking Citations on the interative map
 def parking_citation_and_tow_on_street(connection, street_name, street_type):
     query = '''
-        select parking_citation.citation_id, parking_violation.fine_amount, parking_citation.violation_type, tow.tow_id, tow.status, tow.latitude, tow.longitude
-        from parking_citation
-        join tow on tow.latitude = parking_citation.latitude and tow.longitude = parking_citation.longitude
-        join parking_violation on parking_violation.violation_type = parking_citation.violation_type
-        where tow.street_name = %s and tow.street_type = %s
-        order by parking_violation.fine_amount desc
+        SELECT
+            parking_citation.citation_id,
+            parking_violation.fine_amount,
+            parking_citation.violation_type,
+            tow.tow_id,
+            tow.status,
+            tow.latitude,
+            tow.longitude
+        FROM
+            parking_citation
+        JOIN
+            tow ON tow.latitude = parking_citation.latitude AND tow.longitude = parking_citation.longitude
+        JOIN
+            parking_violation ON parking_violation.violation_type = parking_citation.violation_type
+        WHERE
+            tow.street_name = %s
+            AND tow.street_type = %s
+        ORDER BY
+            parking_violation.fine_amount DESC;
     '''
 
     return execute_query(connection, query, (street_name, street_type))
@@ -540,6 +580,7 @@ def transit_delay_due_to_tow(connection):
             bs.Deviation;
     '''
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, -RECENT_IMPACT_TIME, RECENT_IMPACT_TIME))
+
 
 # Transit delays that might have been caused due to Parking_Citations nearby. Reports nearby Bus Stop id, deviation, route destination, route number, route name, and Parking Citation ids. Displays the locations of the Parking Citations and Bus Stops on the interative map
 def transit_delay_due_to_citation(connection):

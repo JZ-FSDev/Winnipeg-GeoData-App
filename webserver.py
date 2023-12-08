@@ -128,12 +128,26 @@ def bus_route_in_neighbourhood_between_date_time():
 
 @app.route('/api/wfps_in_neighbourhood', methods=['POST'])
 def wfps_in_neighbourhood():
+    im.update_empty_map()  # Clear map
     data = request.get_json()
     neighbourhood = data.get('neighbourhood')
 
     result = ms.wfps_in_neighbourhood(db_connection, neighbourhood)
     if len(result) > 0:
-        json_result = [{'neighbourhood': item[0], 'call_date': item[1], 'reason': item[2], 'call_time': item[3]} for item in result]
+        json_result = [{'wfps_call_id': item[0], 'call_date': item[1], 'reason': item[2], 'call_time': item[3]} for item in result]
+        return jsonify({'result': json_result})
+    else:
+        return jsonify({'result': []})
+    
+@app.route('/api/substances_in_neighbourhood', methods=['POST'])
+def substances_in_neighbourhood():
+    im.update_empty_map()  # Clear map
+    data = request.get_json()
+    neighbourhood = data.get('neighbourhood')
+
+    result = ms.substances_in_neighbourhood(db_connection, neighbourhood)
+    if len(result) > 0:
+        json_result = [{'substance_use_id': item[0], 'substance': item[1], 'date': item[2], 'time': item[3]} for item in result]
         return jsonify({'result': json_result})
     else:
         return jsonify({'result': []})

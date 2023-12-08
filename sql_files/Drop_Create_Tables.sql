@@ -49,7 +49,7 @@ CREATE TABLE WFPS_Call(
     FOREIGN KEY (Neighbourhood_Name) REFERENCES Neighbourhood(Neighbourhood_Name) 
 );
 
-CREATE TABLE Substances(
+CREATE TABLE Substance_Use(
     Substance_Use_ID INT NOT NULL,
     Date DATE, 
     Time TIME,

@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "count_substance_neighbourhood": "Retrieve Neighbourhood names along with the total number of houses and the count of Substance Uses for each Neighbourhood",
         "count_lane_closure_street": "Retrieve the total count of Lane Closures for each Street",
         "count_wfps_call_neighbourhood": "Retrieve Neighbourhood names along with the total number of houses and the count of WFPS calls for each Neighbourhood",
-        "count_parking_citation_street": "Retrieve the total count of Parking Citations for each Street",
+        "count_parking_citation_street": "Retrieve the total count of Parking Citations and the sum of all violation fine amounts for each Street",
         "bus_route_avg_deviation": "Retrieve the Bus Routes along with the average deviation of each stop for each route",
         "street_paystation": "List all Streets and their respective Paystation id, time_limit, and space, ordered by Street name and type. Plots the results in the interactive map",
         "tows_in_neighbourhood": "Find all Tows ids and their status in a given Neighbourhood. Displays the Tows in the interactive map",
@@ -122,6 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "parking_citation_and_tow_on_street": "Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type. Displays the shared locations of the Tows and Parking Citations on the interative map",
         "transit_delay_due_to_tow": "Transit delays that might have been caused due to Tows happening nearby. Reports nearby Bus Stop id, deviation, route destination, route number, route name, and Tow ids. Displays the locations of the Tows and Bus Stops on the interative map",
         "transit_delay_due_to_citation": "Transit delays that might have been caused due to Parking_Citations nearby. Reports nearby Bus Stop id, deviation, route destination, route number, route name, and Parking Citation ids. Displays the locations of the Parking Citations and Bus Stops on the interative map",
+        "substances_in_neighbourhood": "Retrieves all Substance Use ids, dates, times, and substances for a given Neighbourhood",
         // Add more queries and descriptions as needed
     };
 
@@ -141,6 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "parking_citation_and_tow_on_street": ['Parking Citation', 'Tow'],
         "transit_delay_due_to_tow": ['Tow', 'Bus Stop', 'Bus Route'],
         "transit_delay_due_to_citation": ['Tow', 'Bus Stop', 'Bus Route'],
+        "substances_in_neighbourhood": ['Substance Abuse', 'Neighbourhood'],
     }
 
     const parameterCategories = {
@@ -159,6 +161,8 @@ document.addEventListener('DOMContentLoaded', function () {
         "parking_citation_and_tow_on_street": ['street-section'],
         "transit_delay_due_to_tow": [],
         "transit_delay_due_to_citation": [],
+        "substances_in_neighbourhood": ['neighbourhood-section'],
+
     };
 
     function updateQueryDescription() {
