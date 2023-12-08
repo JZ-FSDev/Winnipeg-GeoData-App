@@ -90,7 +90,7 @@ CREATE TABLE Parking_Violation (
 
 CREATE TABLE Parking_Citation (
     Citation_ID INT NOT NULL,
-    Issue_Date TEXT,
+    Issue_Date DATE,
     Time TIME,
     Violation_Type VARCHAR(255),
     Longitude DECIMAL(11,8),

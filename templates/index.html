@@ -16,8 +16,8 @@
             <h3>Filter by Query Involving:</h2>
                 <div class="checkbox-columns">
                     <div class="checkbox-column">
-                        <input type="checkbox" id="filter-time" name="Time"> Time<br>
-                        <input type="checkbox" id="filter-day" name="Date"> Date<br>
+                        <input type="checkbox" id="filter-time" name="Date-Time"> Date-Time<br>
+                        <input type="checkbox" id="filter-day" name="Parking Citation"> Parking Citation<br>
                         <input type="checkbox" id="filter-gps" name="GPS Point"> GPS Point<br>
                         <input type="checkbox" id="filter-street" name="Street"> Street<br>
                     </div>
@@ -40,9 +40,9 @@
             <h3>Query:
                 <select id="query-dropdown" name="query">
                     <option value="" disabled selected>Select a Query</option>
-                    <option value="total_substance_neighbourhood">total_substance_neighbourhood</option>
+                    <option value="count_substance_neighbourhood">count_substance_neighbourhood</option>
                     <option value="count_lane_closure_street">count_lane_closure_street</option>
-                    <option value="total_wfps_call_neighbourhood">total_wfps_call_neighbourhood</option>
+                    <option value="count_wfps_call_neighbourhood">count_wfps_call_neighbourhood</option>
                     <option value="count_parking_citation_street">count_parking_citation_street</option>
                     <option value="bus_route_avg_deviation">bus_route_avg_deviation</option>
                     <option value="street_paystation">street_paystation</option>
@@ -54,6 +54,8 @@
                     <option value="lane_closures_in_neighbourhood">lane_closures_in_neighbourhood</option>
                     <option value="bus_stops_on_street">bus_stops_on_street</option>
                     <option value="parking_citation_and_tow_on_street">parking_citation_and_tow_on_street</option>
+                    <option value="transit_delay_due_to_tow">transit_delay_due_to_tow</option>
+                    <option value="transit_delay_due_to_citation">transit_delay_due_to_citation</option>
 
                 </select>
             </h3>

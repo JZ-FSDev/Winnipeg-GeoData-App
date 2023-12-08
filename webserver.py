@@ -19,10 +19,10 @@ def hello():
 def greet(name):
     return jsonify({'message': f'Hello, {name}!'})
 
-@app.route('/api/total_wfps_call_neighbourhood', methods=['POST'])
-def total_wfps_call_neighbourhood():
+@app.route('/api/count_wfps_call_neighbourhood', methods=['POST'])
+def count_wfps_call_neighbourhood():
     im.update_empty_map()  # Clear map
-    result = ms.total_wfps_call_neighbourhood(db_connection)
+    result = ms.count_wfps_call_neighbourhood(db_connection)
 
     if len(result) > 0:
         json_result = [{'neighbourhood': item[0], 'num_houses': item[1], 'call_count': item[2]} for item in result]
@@ -30,13 +30,13 @@ def total_wfps_call_neighbourhood():
     else:
         return jsonify({'result': []})
 
-@app.route('/api/total_substance_neighbourhood', methods=['POST'])
-def total_substance_neighbourhood():
+@app.route('/api/count_substance_neighbourhood', methods=['POST'])
+def count_substance_neighbourhood():
     im.update_empty_map()  # Clear map
-    result = ms.total_substance_neighbourhood(db_connection)
+    result = ms.count_substance_neighbourhood(db_connection)
 
     if len(result) > 0:
-        json_result = [{'neighbourhood': item[0], 'substance_count': item[1]} for item in result]
+        json_result = [{'neighbourhood': item[0], 'num_houses': item[1], 'call_count': item[2]} for item in result]
         return jsonify({'result': json_result})
     else:
         return jsonify({'result': []})
@@ -69,7 +69,7 @@ def bus_route_avg_deviation():
     result = ms.bus_route_avg_deviation(db_connection)
 
     if len(result) > 0:
-        json_result = [{'route_number': item[0], 'route_destination': item[1], 'average_deviation (minutes)': item[2]} for item in result]
+        json_result = [{'route_number': item[0], 'route_destination': item[1], 'average_deviation (seconds)': item[2]} for item in result]
         return jsonify({'result': json_result})
     else:
         return jsonify({'result': []})
@@ -203,6 +203,38 @@ def parking_citation_and_tow_on_street():
         im.update_map(df, ['citation_id', 'tow_id'])
 
         json_result = [{'citation_id': item[0], 'fine_amount': item[1], 'violation_type': item[2], 'tow_id': item[3], 'tow_status': item[4]} for item in result]
+        return jsonify({'result': json_result})
+    else:
+        im.update_empty_map()  # Clear map
+        return jsonify({'result': []})
+    
+@app.route('/api/transit_delay_due_to_tow', methods=['POST'])
+def transit_delay_due_to_tow():
+
+    result = ms.transit_delay_due_to_tow(db_connection)
+    if len(result) > 0:
+        columns = ['bs_Latitude', 'bs_Longitude', 'scheduled_time', 'deviation (seconds)', 'route_destination', 'route_number', 'tow_Latitude', 'tow_Longitude', 'route_name', 'tow_id', 'bus_stop_id']
+
+        df = pd.DataFrame(result, columns=columns)
+        im.update_map(df, ['bus_stop_id', 'tow_id'], dual_markers=True)
+
+        json_result = [{'scheduled_time': str(item[2]), 'deviation': item[3], 'route_destination': item[4], 'route_number': item[5], 'route_name': item[8], 'tow_id': item[9], 'bus_stop_id': item[10]} for item in result]
+        return jsonify({'result': json_result})
+    else:
+        im.update_empty_map()  # Clear map
+        return jsonify({'result': []})
+
+@app.route('/api/transit_delay_due_to_citation', methods=['POST'])
+def transit_delay_due_to_citation():
+
+    result = ms.transit_delay_due_to_citation(db_connection)
+    if len(result) > 0:
+        columns = ['bs_Latitude', 'bs_Longitude', 'scheduled_time', 'deviation (seconds)', 'route_destination', 'route_number', 'tow_Latitude', 'tow_Longitude', 'route_name', 'citation_id', 'bus_stop_id']
+
+        df = pd.DataFrame(result, columns=columns)
+        im.update_map(df, ['bus_stop_id', 'citation_id'], dual_markers=True)
+
+        json_result = [{'scheduled_time': str(item[2]), 'deviation': item[3], 'route_destination': item[4], 'route_number': item[5], 'route_name': item[8], 'citation_id': item[9], 'bus_stop_id': item[10]} for item in result]
         return jsonify({'result': json_result})
     else:
         im.update_empty_map()  # Clear map

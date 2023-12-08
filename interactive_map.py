@@ -1,8 +1,9 @@
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
+import numpy as np
 
-def update_map(df, text_column):
+def update_map(df, text_column, dual_markers=False):
     # Create a scatter plot on a map with markers
 
     # Define the size of the markers
@@ -11,7 +12,34 @@ def update_map(df, text_column):
     # Create a scatter map using plotly.graph_objects
     fig = go.Figure()
 
-    if isinstance(text_column, list):
+
+    if dual_markers:
+        # Add scatter mapbox trace wiht multiple text per marker
+        fig.add_trace(
+            go.Scattermapbox(
+                lat=df['bs_Latitude'],
+                lon=df['bs_Longitude'],
+                mode='markers',
+                marker=dict(
+                    size=df['size'],
+                ),
+                text=f"{text_column[0]} = " + df[text_column[0]].astype(str),
+                name=text_column[0],
+            )
+        )
+        fig.add_trace(
+            go.Scattermapbox(
+                lat=df['tow_Latitude'],
+                lon=df['tow_Longitude'],
+                mode='markers',
+                marker=dict(
+                    size=df['size'],
+                ),
+                text=f"{text_column[1]} = " + df[text_column[1]].astype(str),
+                name=text_column[1],
+            )
+        )
+    elif isinstance(text_column, list):
         text = ''
         for string in text_column:
             text += f"{string} = " + df[string].astype(str)
@@ -43,18 +71,46 @@ def update_map(df, text_column):
             )
         )
 
-    # Set map layout
-    fig.update_layout(
-        mapbox=dict(
-            style='open-street-map',
-            center=dict(
-                lat=df['Latitude'].mean(),
-                lon=df['Longitude'].mean(),
+    if dual_markers:
+        bs_latitudes = df['bs_Latitude'].tolist()
+        tow_latitudes = df['tow_Latitude'].tolist()
+
+        bs_longitudes = df['bs_Longitude'].tolist()
+        tow_longitudes = df['tow_Longitude'].tolist()
+
+        # Concatenate the lists
+        merged_latitudes = np.concatenate([bs_latitudes, tow_latitudes])
+        merged_longitudes = np.concatenate([bs_longitudes, tow_longitudes])
+
+        # Calculate the mean
+        merged_mean_lat = np.mean(merged_latitudes)
+        merged_mean_lon = np.mean(merged_longitudes)
+
+        # Set map layout
+        fig.update_layout(
+            mapbox=dict(
+                style='open-street-map',
+                center=dict(
+                    lat=merged_mean_lat,
+                    lon=merged_mean_lon,
+                ),
+                zoom=10,
             ),
-            zoom=10,
-        ),
-        height=550,
-    )
+            height=550,
+        )
+    else:
+        # Set map layout
+        fig.update_layout(
+            mapbox=dict(
+                style='open-street-map',
+                center=dict(
+                    lat=df['Latitude'].mean(),
+                    lon=df['Longitude'].mean(),
+                ),
+                zoom=10,
+            ),
+            height=550,
+        )
 
     # Save the interactive map as an HTML file
     pio.write_html(fig, file='static/interactive_map.html', auto_open=False)

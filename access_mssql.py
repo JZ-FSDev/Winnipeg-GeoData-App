@@ -27,8 +27,8 @@ bus_route_file = script_relative_path + "Bus_Route.sql"
 bus_stop_file = script_relative_path + "Bus_Stop.sql"
 indexes_file = script_relative_path + "Indexes.sql"
 
-ADJACENT_MIN_RADIUS = 100  # 100 meter range for considering two entities to be adjacent to each other
-
+ADJACENT_RADIUS = 100  # 100 meter range for considering two entities to be adjacent to each other
+RECENT_IMPACT_TIME = 15  # Within 15 minutes for considering two events impact one another 
 
 def connect_to_sql_server():
     # Read database credentials from a configuration file
@@ -212,8 +212,8 @@ def execute_query(connection, query, args=None):
 
 
 
-# Retrieve Neighbourhood names along with the total number of houses and the count of WFPS calls for each Neighbourhood, ordered by neighbourhood name
-def total_wfps_call_neighbourhood(connection):
+# Retrieve Neighbourhood names along with the total number of houses and the count of WFPS calls for each Neighbourhood
+def count_wfps_call_neighbourhood(connection):
     query = '''
         SELECT
             n.Neighbourhood_Name,
@@ -225,13 +225,13 @@ def total_wfps_call_neighbourhood(connection):
         GROUP BY
             n.Neighbourhood_Name, n.Number_OF_Houses
         ORDER BY
-            n.Neighbourhood_Name;
+            Call_Count;
     '''
 
     return execute_query(connection, query)
 
 
-# List all Streets along with the count of Parking Citations for each street, ordered by street name and type
+# Retrieve the total count of Parking Citations for each Street
 def count_parking_citation_street(connection):
     query = '''
         SELECT
@@ -245,13 +245,12 @@ def count_parking_citation_street(connection):
         GROUP BY
             s.Street_Name, s.Street_Type
         ORDER BY
-            s.Street_Name, s.Street_Type;
+            Citation_Count;
     '''
 
     return execute_query(connection, query)
 
 
-# Check correctness
 # Retrieve the Bus Routes along with the average deviation of each stop for each route
 def bus_route_avg_deviation(connection):
     query = '''
@@ -293,11 +292,12 @@ def bus_route_avg_deviation(connection):
 
 
 
-# List all Neighbourhoods with the total number of Substances used, ordered by the total number of substances in descending order
-def total_substance_neighbourhood(connection):
+# Retrieve Neighbourhood names along with the total number of houses and the count of Substance Uses for each Neighbourhood
+def count_substance_neighbourhood(connection):
     query = '''
         SELECT
             n.Neighbourhood_Name,
+            n.Number_OF_Houses,
             COUNT(s.Substance_Use_ID) AS Substance_Count
         FROM
             Neighbourhood n
@@ -312,7 +312,7 @@ def total_substance_neighbourhood(connection):
 
 
 
-# Retrieve the total count of Lane Closures for each Street and Street Type, ordered by Street Name and Street Type
+# Retrieve the total count of Lane Closures for each Street
 def count_lane_closure_street(connection):
     query = '''
         SELECT
@@ -325,7 +325,7 @@ def count_lane_closure_street(connection):
         GROUP BY
             lc.Street_Name, lc.Street_Type
         ORDER BY
-            lc.Street_Name, lc.Street_Type;
+            Closure_Count;
     '''
 
     return execute_query(connection, query)
@@ -372,10 +372,30 @@ def tows_in_neighbourhood(connection, neighbourhood):
     return execute_query(connection, query, (neighbourhood))
 
 
+# Find all Substance Use ids, statuses, and times in a given Neighbourhood. Displays the Substance Uses in the interactive map
+def substances_in_neighbourhood(connection, neighbourhood):
+    query = '''
+        SELECT
+            su.substance_use_id,
+            su.latitude,
+            su.longitude,
+            su.status
+            su.time
+        FROM
+            substance_use su
+            join neighbourhood_street ns on ns.street_name = tow.street_name and ns.street_type = tow.street_type
+            where ns.neighbourhood_name = %s
+        ORDER BY
+            tow.tow_id;
+    '''
+
+    return execute_query(connection, query, (neighbourhood))
+
+
 # List all unique Bus Route numbers, destinations, and names between a given date and time range that run through a given neighbourhood
 def bus_route_in_neighbourhood_between_date_time(connection, start_date, start_time, end_date, end_time, neighbourhood):
-    latitude_diff = mu.meters_to_latitude_difference(int(ADJACENT_MIN_RADIUS))
-    longitude_diff = mu.meters_to_longitude_difference(int(ADJACENT_MIN_RADIUS), latitude_diff)
+    latitude_diff = mu.meters_to_latitude_difference(int(ADJACENT_RADIUS))
+    longitude_diff = mu.meters_to_longitude_difference(int(ADJACENT_RADIUS), latitude_diff)
 
     print(start_time, end_time, start_date, end_date, neighbourhood)
 
@@ -399,7 +419,7 @@ def bus_route_in_neighbourhood_between_date_time(connection, start_date, start_t
 
 
 
-# Retrieve the WFPS Call id, date, call time, and reason for a given Neighbourhood
+# Retrieve all the WFPS Call ids, dates, call times, and reasons for a given Neighbourhood
 def wfps_in_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
@@ -418,10 +438,10 @@ def wfps_in_neighbourhood(connection, neighbourhood):
     return execute_query(connection, query, (neighbourhood))
 
 
-# List all Streets with the count of Bus Stops on each street, ordered by Street name and type
+# List all Streets with the count of Bus Stops on each street
 def count_bus_stop_street(connection):
-    latitude_diff = mu.meters_to_latitude_difference(int(ADJACENT_MIN_RADIUS))
-    longitude_diff = mu.meters_to_longitude_difference(int(ADJACENT_MIN_RADIUS), latitude_diff)
+    latitude_diff = mu.meters_to_latitude_difference(int(ADJACENT_RADIUS))
+    longitude_diff = mu.meters_to_longitude_difference(int(ADJACENT_RADIUS), latitude_diff)
 
     query = '''
         SELECT
@@ -439,13 +459,13 @@ def count_bus_stop_street(connection):
         GROUP BY
             gps.Street_Name, gps.Street_Type
         ORDER BY
-            gps.Street_Name, gps.Street_Type;
+            Bus_Stop_Count desc;
     '''
 
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff))
 
 
-# Find all Bus Stop ids, scheduled time, and dates and Bus Route name within a given range in meters of all known GPS Points of a given Street name and type. Displays the Bus Stops on the interactive map
+# Find all Bus Stop ids, scheduled times, dates, and route names within a given range in meters of all known GPS Points of a given Street name and type. Displays the Bus Stops on the interactive map
 def bus_stops_on_street(connection, street_name, street_type, meters):
     latitude_diff = mu.meters_to_latitude_difference(int(meters))
     longitude_diff = mu.meters_to_longitude_difference(int(meters), latitude_diff)
@@ -456,7 +476,8 @@ def bus_stops_on_street(connection, street_name, street_type, meters):
         JOIN gps_point ON gps_point.latitude BETWEEN (bus_stop.latitude - %s) AND (bus_stop.latitude + %s)
         AND gps_point.longitude BETWEEN (bus_stop.longitude - %s) AND (bus_stop.longitude + %s)
         join bus_route on bus_route.route_number = bus_stop.route_number and bus_route.route_destination = bus_stop.route_destination
-        WHERE gps_point.street_name = %s AND gps_point.street_type = %s;
+        WHERE gps_point.street_name = %s AND gps_point.street_type = %s
+        order by bus_stop.date;
     '''
     
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, street_name, street_type))
@@ -476,7 +497,7 @@ def lane_closures_in_neighbourhood(connection, neighbourhood):
     return execute_query(connection, query, (neighbourhood))
 
 
-# Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type. Displays the shared locations of the Tows and Parking Citations
+# Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type. Displays the shared locations of the Tows and Parking Citations on the interative map
 def parking_citation_and_tow_on_street(connection, street_name, street_type):
     query = '''
         select parking_citation.citation_id, parking_violation.fine_amount, parking_citation.violation_type, tow.tow_id, tow.status, tow.latitude, tow.longitude
@@ -489,18 +510,21 @@ def parking_citation_and_tow_on_street(connection, street_name, street_type):
 
     return execute_query(connection, query, (street_name, street_type))
 
-#Transit delays that might have been caused due to Tows happening nearby
-def transit_delay_due_to_tow(connection, meters):
-    latitude_diff = mu.meters_to_latitude_difference(int(100))
-    longitude_diff = mu.meters_to_longitude_difference(int(100), latitude_diff)
+
+# Transit delays that might have been caused due to Tows happening nearby. Reports nearby Bus Stop id, deviation, route destination, route number, route name, and Tow ids. Displays the locations of the Tows and Bus Stops on the interative map
+def transit_delay_due_to_tow(connection):
+    latitude_diff = mu.meters_to_latitude_difference(ADJACENT_RADIUS)
+    longitude_diff = mu.meters_to_longitude_difference(ADJACENT_RADIUS, latitude_diff)
 
     query = '''
-        SELECT
+        SELECT distinct
             bs.Latitude, bs.Longitude, bs.Scheduled_Time, 
-            (bs.Scheduled_Time - bs.Deviation) as Actual_Time,
+            bs.Deviation,
             bs.Route_Destination, bs.Route_Number,
             Tow.Latitude, Tow.Longitude,
-            br.Route_Name
+            br.Route_Name,
+            tow.tow_id,
+            bs.row_id
         FROM
             bus_stop bs
         JOIN
@@ -513,24 +537,26 @@ def transit_delay_due_to_tow(connection, meters):
         WHERE
             bs.Date = Tow.Date AND
             bs.Deviation < 0 AND 
-            bs.Scheduled_Time BETWEEN (Tow.Time - 15) AND (Tow.Time + 15)
+            bs.Scheduled_Time BETWEEN DATEADD(MINUTE, %s, Tow.Time) AND DATEADD(MINUTE, %s, Tow.Time)
         ORDER BY
             bs.Deviation;
     '''
-    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff))
+    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, -RECENT_IMPACT_TIME, RECENT_IMPACT_TIME))
 
-#Transit delays that might have been caused due to Parking_Citations nearby
-def transit_delay_due_to_citation(connection, meters):
-    latitude_diff = mu.meters_to_latitude_difference(int(100))
-    longitude_diff = mu.meters_to_longitude_difference(int(100), latitude_diff)
+# Transit delays that might have been caused due to Parking_Citations nearby. Reports nearby Bus Stop id, deviation, route destination, route number, route name, and Parking Citation ids. Displays the locations of the Parking Citations and Bus Stops on the interative map
+def transit_delay_due_to_citation(connection):
+    latitude_diff = mu.meters_to_latitude_difference(ADJACENT_RADIUS)
+    longitude_diff = mu.meters_to_longitude_difference(ADJACENT_RADIUS, latitude_diff)
 
     query = '''
-        SELECT
+        SELECT distinct 
             bs.Latitude, bs.Longitude, bs.Scheduled_Time, 
-            (bs.Scheduled_Time - bs.Deviation) as Actual_Time,
+            bs.Deviation,
             bs.Route_Destination, bs.Route_Number,
             pk.Latitude, pk.Longitude,
-            br.Route_Name
+            br.Route_Name,
+            pk.citation_id,
+            bs.row_id
         FROM
             bus_stop bs
         JOIN
@@ -543,8 +569,8 @@ def transit_delay_due_to_citation(connection, meters):
         WHERE
             bs.Date = pk.Issue_Date AND
             bs.Deviation < 0 AND 
-            bs.Scheduled_Time BETWEEN (pk.Time - 15) AND (pk.Time + 15)
+            bs.Scheduled_Time BETWEEN DATEADD(MINUTE, %s, bs.Scheduled_Time) AND DATEADD(MINUTE, %s, bs.Scheduled_Time)
         ORDER BY
             bs.Deviation;
     '''
-    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff))
+    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, -RECENT_IMPACT_TIME, RECENT_IMPACT_TIME))

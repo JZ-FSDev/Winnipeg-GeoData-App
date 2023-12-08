@@ -107,42 +107,46 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Define a dictionary to map queries to descriptions
     const queryDescriptions = {
-        "total_substance_neighbourhood": "List all Neighbourhoods with the total number of Substances used, ordered by the total number of substances in descending order",
-        "count_lane_closure_street": "Retrieve the total count of Lane Closures for each Street and Street Type, ordered by Street Name and Street Type",
-        "total_wfps_call_neighbourhood": "Retrieve Neighbourhood names along with the total number of houses and the count of WFPS calls for each Neighbourhood, ordered by neighbourhood name",
-        "count_parking_citation_street": "List all Streets along with the count of Parking Citations for each street, ordered by street name and type",
+        "count_substance_neighbourhood": "Retrieve Neighbourhood names along with the total number of houses and the count of Substance Uses for each Neighbourhood",
+        "count_lane_closure_street": "Retrieve the total count of Lane Closures for each Street",
+        "count_wfps_call_neighbourhood": "Retrieve Neighbourhood names along with the total number of houses and the count of WFPS calls for each Neighbourhood",
+        "count_parking_citation_street": "Retrieve the total count of Parking Citations for each Street",
         "bus_route_avg_deviation": "Retrieve the Bus Routes along with the average deviation of each stop for each route",
         "street_paystation": "List all Streets and their respective Paystation id, time_limit, and space, ordered by Street name and type. Plots the results in the interactive map",
         "tows_in_neighbourhood": "Find all Tows ids and their status in a given Neighbourhood. Displays the Tows in the interactive map",
         "bus_route_in_neighbourhood_between_date_time": "List all unique Bus Route numbers, destinations, and names between a given date and time range that run through a given neighbourhood",
-        "wfps_in_neighbourhood": "Retrieve the WFPS Call id, date, call time, and reason for a given Neighbourhood",
-        "count_bus_stop_street": "List all Streets with the count of Bus Stops on each street, ordered by Street name and type",
+        "wfps_in_neighbourhood": "Retrieve all the WFPS Call ids, dates, call times, and reasons for a given Neighbourhood",
+        "count_bus_stop_street": "List all Streets with the count of Bus Stops on each street",
         "lane_closures_in_neighbourhood": "Find all Lane Closure ids and date ranges in a given Neighbourhood. Displays the center locations of the Lane Closures on the interactive map",
-        "bus_stops_on_street": "Find all Bus Stop ids, scheduled time, and dates and Bus Route name within a given range in meters of all known GPS Points of a given Street name and type. Displays the Bus Stops on the interactive map",
-        "parking_citation_and_tow_on_street": "Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type. Displays the shared locations of the Tows and Parking Citations",
+        "bus_stops_on_street": "Find all Bus Stop ids, scheduled times, dates, and route names within a given range in meters of all known GPS Points of a given Street name and type. Displays the Bus Stops on the interactive map",
+        "parking_citation_and_tow_on_street": "Find all Parking Citations ids, fine amounts and types and Tow ids and statuses which occurred on the same location of a given Street name and type. Displays the shared locations of the Tows and Parking Citations on the interative map",
+        "transit_delay_due_to_tow": "Transit delays that might have been caused due to Tows happening nearby. Reports nearby Bus Stop id, deviation, route destination, route number, route name, and Tow ids. Displays the locations of the Tows and Bus Stops on the interative map",
+        "transit_delay_due_to_citation": "Transit delays that might have been caused due to Parking_Citations nearby. Reports nearby Bus Stop id, deviation, route destination, route number, route name, and Parking Citation ids. Displays the locations of the Parking Citations and Bus Stops on the interative map",
         // Add more queries and descriptions as needed
     };
 
     const queryCategories = {
-        "total_substance_neighbourhood": ['Substance Abuse', 'Neighbourhood'],
+        "count_substance_neighbourhood": ['Substance Abuse', 'Neighbourhood'],
         "count_lane_closure_street": ['Lane Closure', 'Street'],
-        "total_wfps_call_neighbourhood": ['WFPS Call', 'Neighbourhood'],
+        "count_wfps_call_neighbourhood": ['WFPS Call', 'Neighbourhood'],
         "count_parking_citation_street": ['Parking Citation', 'Street'],
         "bus_route_avg_deviation": ['Bus Stop', 'Bus Route'],
         "street_paystation": ['Street', 'Paystation'],
         "tows_in_neighbourhood": ['Tow', 'Neighbourhood'],
-        "bus_route_in_neighbourhood_between_date_time": ['Bus Route', 'Neighbourhood', 'Date', 'Time'],
+        "bus_route_in_neighbourhood_between_date_time": ['Bus Route', 'Neighbourhood', 'Date-Time'],
         "wfps_in_neighbourhood": ['WFPS Call', 'Neighbourhood'],
         "count_bus_stop_street": ['Bus Stop', 'Street'],
         "lane_closures_in_neighbourhood": ['Lane Closure', 'Neighbourhood'],
         "bus_stops_on_street": ['Bus Stop', 'Street'],
         "parking_citation_and_tow_on_street": ['Parking Citation', 'Tow'],
+        "transit_delay_due_to_tow": ['Tow', 'Bus Stop', 'Bus Route'],
+        "transit_delay_due_to_citation": ['Tow', 'Bus Stop', 'Bus Route'],
     }
 
     const parameterCategories = {
-        "total_substance_neighbourhood": [],
+        "count_substance_neighbourhood": [],
         "count_lane_closure_street": [],
-        "total_wfps_call_neighbourhood": [],
+        "count_wfps_call_neighbourhood": [],
         "count_parking_citation_street": [],
         "bus_route_avg_deviation": [],
         "street_paystation": [],
@@ -153,6 +157,8 @@ document.addEventListener('DOMContentLoaded', function () {
         "lane_closures_in_neighbourhood": ['neighbourhood-section'],
         "bus_stops_on_street": ['street-section', 'meter-section'],
         "parking_citation_and_tow_on_street": ['street-section'],
+        "transit_delay_due_to_tow": [],
+        "transit_delay_due_to_citation": [],
     };
 
     function updateQueryDescription() {
