@@ -613,3 +613,44 @@ def transit_delay_due_to_citation(connection):
             bs.Deviation;
     '''
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, -RECENT_IMPACT_TIME, RECENT_IMPACT_TIME))
+
+# Tows that happended on a street close to lane closure between a certain date range and close proximity
+def tows_due_to_lane_closures(connection, streetName, Date_From, Date_To):
+    latitude_diff = mu.meters_to_latitude_difference(ADJACENT_RADIUS)
+    longitude_diff = mu.meters_to_longitude_difference(ADJACENT_RADIUS, latitude_diff)
+
+    query = '''
+        SELECT
+            Tow.Tow_ID, Tow.Latitude, Tow.Longitude, Tow.Date as TowDate,
+            lc.Latitude, lc.Longitude, lc.Lane_Closure_ID,
+            lc.Date_From as ClosedFrom, lc.Date_To as ClosedTo
+        FROM
+            Tow
+        JOIN
+            Lane_Closure lc ON Tow.Street_Name = lc.Street_Name AND Tow.Street_Type = lc.Street_Type
+        WHERE
+            lc.Street_Name = %s 
+            AND Tow.Date BETWEEN %s AND %s
+            AND Tow.Date BETWEEN lc.Date_From AND lc.Date_To
+            AND Tow.Latitude BETWEEN (lc.Latitude - %s) AND (lc.Latitude + %s)
+            AND Tow.Longitude BETWEEN (lc.Longitude - %s) AND (lc.Longitude + %s)
+    '''
+    return execute_query(connection, query, (streetName, Date_From, Date_To, latitude_diff, latitude_diff, longitude_diff, longitude_diff))
+
+
+# Tows and paystations on a street between a given date range and time.
+def tow_paystation_on_street(connection, streetName, Date_From, Date_To):
+
+    query = '''
+        SELECT
+            Tow.Tow_ID, Tow.Latitude, Tow.Longitude, Tow.Date as TowDate,
+            ps.Latitude, ps.Longitude, ps.Paystation_ID
+        FROM
+            Tow
+        JOIN
+            Paystation ps ON Tow.Street_Name = ps.Street_Name AND Tow.Street_Type = ps.Street_Type
+        WHERE
+            Tow.Street_Name = %s 
+            AND Tow.Date BETWEEN %s AND %s
+    '''
+    return execute_query(connection, query, (streetName, Date_From, Date_To))
