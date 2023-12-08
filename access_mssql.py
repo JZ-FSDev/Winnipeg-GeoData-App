@@ -518,3 +518,33 @@ def transit_delay_due_to_tow(connection, meters):
             bs.Deviation;
     '''
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff))
+
+#Transit delays that might have been caused due to Parking_Citations nearby
+def transit_delay_due_to_citation(connection, meters):
+    latitude_diff = mu.meters_to_latitude_difference(int(100))
+    longitude_diff = mu.meters_to_longitude_difference(int(100), latitude_diff)
+
+    query = '''
+        SELECT
+            bs.Latitude, bs.Longitude, bs.Scheduled_Time, 
+            (bs.Scheduled_Time - bs.Deviation) as Actual_Time,
+            bs.Route_Destination, bs.Route_Number,
+            pk.Latitude, pk.Longitude,
+            br.Route_Name
+        FROM
+            bus_stop bs
+        JOIN
+            Bus_Route br ON
+            br.Route_Number = bs.Route_Number AND br.Route_Destination = br.Route_Destination
+        JOIN
+            Parking_Citation pk ON
+                bs.Latitude BETWEEN (pk.Latitude - %s) AND (pk.Latitude + %s)
+                AND bs.Longitude BETWEEN (pk.Longitude - %s) AND (pk.Longitude + %s)
+        WHERE
+            bs.Date = pk.Issue_Date AND
+            bs.Deviation < 0 AND 
+            bs.Scheduled_Time BETWEEN (pk.Time - 15) AND (pk.Time + 15)
+        ORDER BY
+            bs.Deviation;
+    '''
+    return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff))
