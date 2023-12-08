@@ -614,10 +614,11 @@ def transit_delay_due_to_citation(connection):
     '''
     return execute_query(connection, query, (latitude_diff, latitude_diff, longitude_diff, longitude_diff, -RECENT_IMPACT_TIME, RECENT_IMPACT_TIME))
 
-# Tows that happended on a street close to lane closure between a certain date range and close proximity
-def tows_due_to_lane_closures(connection, streetName, Date_From, Date_To):
-    latitude_diff = mu.meters_to_latitude_difference(ADJACENT_RADIUS)
-    longitude_diff = mu.meters_to_longitude_difference(ADJACENT_RADIUS, latitude_diff)
+
+# Tows that might have happended due to being within a given number of meters to any Lane Closures within a given date-time range. Reports Tow ids and dates and Lane Closure ids, and closure start and end dates
+def tows_due_to_lane_closures(connection, meters, Date_From, Date_To, start_time, end_time):
+    latitude_diff = mu.meters_to_latitude_difference(int(meters))
+    longitude_diff = mu.meters_to_longitude_difference(int(meters), latitude_diff)
 
     query = '''
         SELECT
@@ -629,28 +630,11 @@ def tows_due_to_lane_closures(connection, streetName, Date_From, Date_To):
         JOIN
             Lane_Closure lc ON Tow.Street_Name = lc.Street_Name AND Tow.Street_Type = lc.Street_Type
         WHERE
-            lc.Street_Name = %s 
-            AND Tow.Date BETWEEN %s AND %s
-            AND Tow.Date BETWEEN lc.Date_From AND lc.Date_To
+            Tow.Date BETWEEN %s AND %s
+            AND (lc.Date_From between %s and %s or lc.date_to between %s and %s)
             AND Tow.Latitude BETWEEN (lc.Latitude - %s) AND (lc.Latitude + %s)
             AND Tow.Longitude BETWEEN (lc.Longitude - %s) AND (lc.Longitude + %s)
+            and tow.time between %s and %s;
+        order by Tow.Tow_ID
     '''
-    return execute_query(connection, query, (streetName, Date_From, Date_To, latitude_diff, latitude_diff, longitude_diff, longitude_diff))
-
-
-# Tows and paystations on a street between a given date range and time.
-def tow_paystation_on_street(connection, streetName, Date_From, Date_To):
-
-    query = '''
-        SELECT
-            Tow.Tow_ID, Tow.Latitude, Tow.Longitude, Tow.Date as TowDate,
-            ps.Latitude, ps.Longitude, ps.Paystation_ID
-        FROM
-            Tow
-        JOIN
-            Paystation ps ON Tow.Street_Name = ps.Street_Name AND Tow.Street_Type = ps.Street_Type
-        WHERE
-            Tow.Street_Name = %s 
-            AND Tow.Date BETWEEN %s AND %s
-    '''
-    return execute_query(connection, query, (streetName, Date_From, Date_To))
+    return execute_query(connection, query, (Date_From, Date_To, Date_From, Date_To, Date_From, Date_To, latitude_diff, latitude_diff, longitude_diff, longitude_diff, start_time, end_time))

@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "transit_delay_due_to_tow": "Transit delays that might have been caused due to Tows happening nearby. Reports nearby Bus Stop id, deviation, route destination, route number, route name, and Tow ids. Displays the locations of the Tows and Bus Stops on the interative map",
         "transit_delay_due_to_citation": "Transit delays that might have been caused due to Parking_Citations nearby. Reports nearby Bus Stop id, deviation, route destination, route number, route name, and Parking Citation ids. Displays the locations of the Parking Citations and Bus Stops on the interative map",
         "substances_in_neighbourhood": "Retrieves all Substance Use ids, dates, times, and substances for a given Neighbourhood",
+        "tows_due_to_lane_closures": "Tows that might have happended due to being within a given number of meters to any Lane Closures within a given date-time range. Reports Tow ids and dates and Lane Closure ids, and closure start and end dates"
         // Add more queries and descriptions as needed
     };
 
@@ -132,17 +133,18 @@ document.addEventListener('DOMContentLoaded', function () {
         "count_wfps_call_neighbourhood": ['WFPS Call', 'Neighbourhood'],
         "count_parking_citation_street": ['Parking Citation', 'Street'],
         "bus_route_avg_deviation": ['Bus Stop', 'Bus Route'],
-        "street_paystation": ['Street', 'Paystation'],
-        "tows_in_neighbourhood": ['Tow', 'Neighbourhood'],
+        "street_paystation": ['Street', 'Paystation', "GPS Point"],
+        "tows_in_neighbourhood": ['Tow', 'Neighbourhood', "GPS Point"],
         "bus_route_in_neighbourhood_between_date_time": ['Bus Route', 'Neighbourhood', 'Date-Time'],
         "wfps_in_neighbourhood": ['WFPS Call', 'Neighbourhood'],
         "count_bus_stop_street": ['Bus Stop', 'Street'],
-        "lane_closures_in_neighbourhood": ['Lane Closure', 'Neighbourhood'],
-        "bus_stops_on_street": ['Bus Stop', 'Street'],
-        "parking_citation_and_tow_on_street": ['Parking Citation', 'Tow'],
-        "transit_delay_due_to_tow": ['Tow', 'Bus Stop', 'Bus Route'],
-        "transit_delay_due_to_citation": ['Tow', 'Bus Stop', 'Bus Route'],
+        "lane_closures_in_neighbourhood": ['Lane Closure', 'Neighbourhood', "GPS Point"],
+        "bus_stops_on_street": ['Bus Stop', 'Street', "GPS Point"],
+        "parking_citation_and_tow_on_street": ['Parking Citation', 'Tow', "GPS Point"],
+        "transit_delay_due_to_tow": ['Tow', 'Bus Stop', 'Bus Route', "GPS Point"],
+        "transit_delay_due_to_citation": ['Tow', 'Bus Stop', 'Bus Route', "GPS Point"],
         "substances_in_neighbourhood": ['Substance Abuse', 'Neighbourhood'],
+        "tows_due_to_lane_closures": ['Tow', 'Lane Closure', 'Date-Time', "GPS Point"]
     }
 
     const parameterCategories = {
@@ -162,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "transit_delay_due_to_tow": [],
         "transit_delay_due_to_citation": [],
         "substances_in_neighbourhood": ['neighbourhood-section'],
+        "tows_due_to_lane_closures": ['meter-section', 'start-date-time-section', 'end-date-time-section']
 
     };
 

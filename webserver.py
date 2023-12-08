@@ -58,7 +58,7 @@ def count_parking_citation_street():
     result = ms.count_parking_citation_street(db_connection)
     
     if len(result) > 0:
-        json_result = [{'street_name': item[0], 'street_type': item[1], 'citation_count': item[2]} for item in result]
+        json_result = [{'street_name': item[0], 'street_type': item[1], 'citation_count': item[2], 'total_fines': item[3]} for item in result]
         return jsonify({'result': json_result})
     else:
         return jsonify({'result': []})
@@ -227,7 +227,7 @@ def transit_delay_due_to_tow():
 
     result = ms.transit_delay_due_to_tow(db_connection)
     if len(result) > 0:
-        columns = ['bs_Latitude', 'bs_Longitude', 'scheduled_time', 'deviation (seconds)', 'route_destination', 'route_number', 'tow_Latitude', 'tow_Longitude', 'route_name', 'tow_id', 'bus_stop_id']
+        columns = ['bus_Latitude', 'bus_Longitude', 'scheduled_time', 'deviation (seconds)', 'route_destination', 'route_number', 'tow_Latitude', 'tow_Longitude', 'route_name', 'tow_id', 'bus_stop_id']
 
         df = pd.DataFrame(result, columns=columns)
         im.update_map(df, ['bus_stop_id', 'tow_id'], dual_markers=True)
@@ -243,7 +243,7 @@ def transit_delay_due_to_citation():
 
     result = ms.transit_delay_due_to_citation(db_connection)
     if len(result) > 0:
-        columns = ['bs_Latitude', 'bs_Longitude', 'scheduled_time', 'deviation (seconds)', 'route_destination', 'route_number', 'tow_Latitude', 'tow_Longitude', 'route_name', 'citation_id', 'bus_stop_id']
+        columns = ['bus_Latitude', 'bus_Longitude', 'scheduled_time', 'deviation (seconds)', 'route_destination', 'route_number', 'citation_Latitude', 'citation_Longitude', 'route_name', 'citation_id', 'bus_stop_id']
 
         df = pd.DataFrame(result, columns=columns)
         im.update_map(df, ['bus_stop_id', 'citation_id'], dual_markers=True)
@@ -253,6 +253,28 @@ def transit_delay_due_to_citation():
     else:
         im.update_empty_map()  # Clear map
         return jsonify({'result': []})
+    
+@app.route('/api/tows_due_to_lane_closures', methods=['POST'])
+def tows_due_to_lane_closures():
+    data = request.get_json()
+    start_date = data.get('start_date')
+    start_time = data.get('start_time')
+    end_date = data.get('end_date')
+    end_time = data.get('end_time')
+    num_meters = data.get('num_meters')
+
+    result = ms.tows_due_to_lane_closures(db_connection, num_meters, start_date, end_date, start_time, end_time)
+    if len(result) > 0:
+        columns = ['tow_id', 'tow_Latitude', 'tow_Longitude', 'tow_date', 'lane_Latitude', 'lane_Longitude', 'lane_closure_id', 'lane_closure_from', 'lane_closure_to']
+
+        df = pd.DataFrame(result, columns=columns)
+        im.update_map(df, ['tow_id', 'lane_closure_id'], dual_markers=True)
+
+        json_result = [{'tow_id': item[0], 'tow_date': item[3], 'lane_closure_id': item[6], 'lane_closure_from': item[7], 'lane_closure_to': item[8]} for item in result]
+        return jsonify({'result': json_result})
+    else:
+        im.update_empty_map()  # Clear map
+        return jsonify({'result': []})    
 
 # Route for the index.html page
 @app.route('/')

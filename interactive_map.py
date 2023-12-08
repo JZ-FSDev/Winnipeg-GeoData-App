@@ -12,13 +12,18 @@ def update_map(df, text_column, dual_markers=False):
     # Create a scatter map using plotly.graph_objects
     fig = go.Figure()
 
+    first_prefix = ""
+    second_prefix = ""
 
     if dual_markers:
         # Add scatter mapbox trace wiht multiple text per marker
+        first_prefix = text_column[0].split('_')[0]
+        second_prefix = text_column[1].split('_')[0]
+
         fig.add_trace(
             go.Scattermapbox(
-                lat=df['bs_Latitude'],
-                lon=df['bs_Longitude'],
+                lat=df[first_prefix + '_Latitude'],
+                lon=df[first_prefix + '_Longitude'],
                 mode='markers',
                 marker=dict(
                     size=df['size'],
@@ -29,8 +34,8 @@ def update_map(df, text_column, dual_markers=False):
         )
         fig.add_trace(
             go.Scattermapbox(
-                lat=df['tow_Latitude'],
-                lon=df['tow_Longitude'],
+                lat=df[second_prefix + '_Latitude'],
+                lon=df[second_prefix + '_Longitude'],
                 mode='markers',
                 marker=dict(
                     size=df['size'],
@@ -72,15 +77,15 @@ def update_map(df, text_column, dual_markers=False):
         )
 
     if dual_markers:
-        bs_latitudes = df['bs_Latitude'].tolist()
-        tow_latitudes = df['tow_Latitude'].tolist()
+        first_latitudes = df[first_prefix + '_Latitude'].tolist()
+        second_latitudes = df[second_prefix + '_Latitude'].tolist()
 
-        bs_longitudes = df['bs_Longitude'].tolist()
-        tow_longitudes = df['tow_Longitude'].tolist()
+        second_longitudes = df[first_prefix + '_Longitude'].tolist()
+        second_longitudes = df[second_prefix + '_Longitude'].tolist()
 
         # Concatenate the lists
-        merged_latitudes = np.concatenate([bs_latitudes, tow_latitudes])
-        merged_longitudes = np.concatenate([bs_longitudes, tow_longitudes])
+        merged_latitudes = np.concatenate([first_latitudes, second_latitudes])
+        merged_longitudes = np.concatenate([second_longitudes, second_longitudes])
 
         # Calculate the mean
         merged_mean_lat = np.mean(merged_latitudes)
