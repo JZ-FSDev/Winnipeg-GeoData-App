@@ -305,7 +305,7 @@ def count_substance_neighbourhood(connection):
             Neighbourhood n
             LEFT JOIN Substance_use s ON n.Neighbourhood_Name = s.Neighbourhood_Name
         GROUP BY
-            n.Neighbourhood_Name
+            n.Neighbourhood_Name, n.Number_OF_Houses
         ORDER BY
             Substance_Count DESC;
     '''
