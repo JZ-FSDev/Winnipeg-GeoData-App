@@ -225,7 +225,7 @@ def count_wfps_call_neighbourhood(connection):
         GROUP BY
             n.Neighbourhood_Name, n.Number_OF_Houses
         ORDER BY
-            Call_Count;
+            Call_Count desc;
     '''
 
     return execute_query(connection, query)
@@ -247,7 +247,7 @@ def count_parking_citation_street(connection):
         GROUP BY
             s.Street_Name, s.Street_Type
         ORDER BY
-            Citation_Count;
+            Citation_Count desc;
     '''
 
     return execute_query(connection, query)
@@ -327,7 +327,7 @@ def count_lane_closure_street(connection):
         GROUP BY
             lc.Street_Name, lc.Street_Type
         ORDER BY
-            Closure_Count;
+            Closure_Count desc;
     '''
 
     return execute_query(connection, query)
@@ -355,14 +355,16 @@ def street_paystation(connection):
     return execute_query(connection, query)
 
 
-# Find all Tows ids and their status in a given Neighbourhood. Displays the Tows in the interactive map
+# Find all Tows ids, statuses, dates, and times in a given Neighbourhood. Displays the Tows in the interactive map
 def tows_in_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
             tow.tow_id,
             tow.latitude,
             tow.longitude,
-            tow.status
+            tow.status,
+            tow.date,
+            tow.time
         FROM
             tow
             join neighbourhood_street on neighbourhood_street.street_name = tow.street_name and neighbourhood_street.street_type = tow.street_type
@@ -432,7 +434,7 @@ def wfps_in_neighbourhood(connection, neighbourhood):
             JOIN WFPS_Call w ON n.Neighbourhood_Name = w.Neighbourhood_Name
             where n.neighbourhood_name = %s
         ORDER BY
-            su.time;
+            w.Date;
     '''
 
     return execute_query(connection, query, (neighbourhood))

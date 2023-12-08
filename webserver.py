@@ -98,11 +98,11 @@ def tows_in_neighbourhood():
     result = ms.tows_in_neighbourhood(db_connection, neighbourhood)
 
     if len(result) > 0:
-        columns = ['tow_id', 'Latitude', 'Longitude', 'tow_status']
+        columns = ['tow_id', 'Latitude', 'Longitude', 'tow_status', 'tow_date', 'tow_time']
         df = pd.DataFrame(result, columns=columns)
         im.update_map(df, 'tow_id')
 
-        json_result = [{'tow_id': item[0], 'tow_status': item[3]} for item in result]
+        json_result = [{'tow_id': item[0], 'tow_status': item[3], 'tow_date': item[4], 'tow_time': str(item[5])} for item in result]
         return jsonify({'result': json_result})
     else:
         im.update_empty_map()  # Clear map

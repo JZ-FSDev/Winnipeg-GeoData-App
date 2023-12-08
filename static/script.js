@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "count_parking_citation_street": "Retrieve the total count of Parking Citations and the sum of all violation fine amounts for each Street",
         "bus_route_avg_deviation": "Retrieve the Bus Routes along with the average deviation of each stop for each route",
         "street_paystation": "List all Streets and their respective Paystation id, time_limit, and space, ordered by Street name and type. Plots the results in the interactive map",
-        "tows_in_neighbourhood": "Find all Tows ids and their status in a given Neighbourhood. Displays the Tows in the interactive map",
+        "tows_in_neighbourhood": "Find all Tows ids, statuses, dates, and times in a given Neighbourhood. Displays the Tows in the interactive map",
         "bus_route_in_neighbourhood_between_date_time": "List all unique Bus Route numbers, destinations, and names between a given date and time range that run through a given neighbourhood",
         "wfps_in_neighbourhood": "Retrieve all the WFPS Call ids, dates, call times, and reasons for a given Neighbourhood",
         "count_bus_stop_street": "List all Streets with the count of Bus Stops on each street",
