@@ -377,16 +377,14 @@ def substances_in_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
             su.substance_use_id,
-            su.latitude,
-            su.longitude,
             su.status
             su.time
         FROM
-            substance_use su
-            join neighbourhood_street ns on ns.street_name = tow.street_name and ns.street_type = tow.street_type
-            where ns.neighbourhood_name = %s
+            Neighbourhood n
+            JOIN substance_use_ su ON n.Neighbourhood_Name = su.Neighbourhood_Name
+            where n.neighbourhood_name = %s
         ORDER BY
-            tow.tow_id;
+            n.Neighbourhood_Name;
     '''
 
     return execute_query(connection, query, (neighbourhood))
@@ -423,7 +421,7 @@ def bus_route_in_neighbourhood_between_date_time(connection, start_date, start_t
 def wfps_in_neighbourhood(connection, neighbourhood):
     query = '''
         SELECT
-            n.Neighbourhood_Name,
+            w.WFPS_Call_id,
             w.Date,
             w.Reason,
             w.Call_Time
