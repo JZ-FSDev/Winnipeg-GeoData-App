@@ -634,7 +634,7 @@ def tows_due_to_lane_closures(connection, meters, Date_From, Date_To, start_time
             AND (lc.Date_From between %s and %s or lc.date_to between %s and %s)
             AND Tow.Latitude BETWEEN (lc.Latitude - %s) AND (lc.Latitude + %s)
             AND Tow.Longitude BETWEEN (lc.Longitude - %s) AND (lc.Longitude + %s)
-            and tow.time between %s and %s;
-        order by Tow.Tow_ID
+            and tow.time between %s and %s
+        order by Tow.Tow_ID;
     '''
     return execute_query(connection, query, (Date_From, Date_To, Date_From, Date_To, Date_From, Date_To, latitude_diff, latitude_diff, longitude_diff, longitude_diff, start_time, end_time))
