@@ -207,7 +207,6 @@ def execute_query(connection, query, args=None):
         return rows
 
     except pymssql.Error as e:
-        connection.close()
         print(f"Error executing the query: {e}")
 
     finally:
